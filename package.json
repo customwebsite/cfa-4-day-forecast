@@ -2,7 +2,7 @@
   "name": "CFA 4 day forecast",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.html",
   "scripts": {
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -13,7 +13,7 @@
   "dependencies": {
     "@types/node": "^18.0.6",
     "axios": "^1.7.7",
-    "cheerio": "^1.0.0",
-    "express": "^4.21.0"
+    "express": "^4.21.0",
+    "node-html-parser": "^6.1.13"
   }
 }

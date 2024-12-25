@@ -1,4 +1,4 @@
-const cheerio = require("cheerio");
+const HTMLParser = require("node-html-parser");
 const axios = require("axios");
 const express = require("express");
 const app = express();
@@ -15,13 +15,10 @@ app.get("/", async (req, res) => {
     },
   });
   console.log("parsing html");
-  const $ = cheerio.load(axiosResponse.data);
+  var html = HTMLParser.parse(axiosResponse.data);
   console.log(axiosResponse.data);
-  const htmlElement = $("#gvFireBansAndRatingsMunicipalityList");
-  // res.set('Content-Type', 'text/html');
-  // res.send(Buffer.from(htmlElement.html()));
-  // res.send(htmlElement.html());
-  //console.log(htmlElement.html());
+  var ele = html.getElementById("gvFireBansAndRatingsMunicipalityList");
+  //console.log(ele);
 });
 
 app.listen(PORT, () => {
