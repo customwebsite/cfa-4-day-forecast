@@ -17,10 +17,10 @@ let lastUpdated = null;
 // Serve static files
 app.use(express.static('.'));
 
-// Scrape CFA fire data
+// Scrape CFA fire danger rating data
 async function scrapeCFAData() {
   try {
-    console.log('🔄 Scraping CFA fire data...');
+    console.log('🔄 Scraping CFA fire danger ratings...');
     
     const response = await axios.get(
       'https://www.cfa.vic.gov.au/warnings-restrictions/fire-bans-ratings-and-restrictions/total-fire-bans-fire-danger-ratings/north-central-fire-district',
@@ -34,71 +34,113 @@ async function scrapeCFAData() {
     const dom = new JSDOM(response.data);
     const document = dom.window.document;
     
-    // Look for the main data table
-    const table = document.querySelector('#gvFireBansAndRatingsMunicipalityList, table[id*="Fire"], table[class*="fire"], .fire-table, table');
+    const forecastData = [];
+    const currentDate = new Date();
     
-    if (!table) {
-      console.log('⚠️ Fire data table not found, scraping general content...');
+    // Generate 4-day forecast dates
+    const dayNames = ['Today', 'Tomorrow', 'Day 3', 'Day 4'];
+    const fullDayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    
+    for (let i = 0; i < 4; i++) {
+      const forecastDate = new Date(currentDate);
+      forecastDate.setDate(currentDate.getDate() + i);
       
-      // Fallback: look for any relevant fire information
-      const fireInfo = [];
-      const rows = document.querySelectorAll('tr');
+      let dayLabel = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : fullDayNames[forecastDate.getDay()];
+      const dateString = forecastDate.toLocaleDateString('en-AU', { 
+        timeZone: 'Australia/Melbourne',
+        weekday: 'short',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
       
-      rows.forEach(row => {
-        const cells = row.querySelectorAll('td, th');
-        if (cells.length >= 2) {
-          const rowData = Array.from(cells).map(cell => cell.textContent.trim()).filter(text => text);
-          if (rowData.some(text => text.toLowerCase().includes('fire') || text.toLowerCase().includes('rating') || text.toLowerCase().includes('ban'))) {
-            fireInfo.push({
-              location: rowData[0] || 'Unknown',
-              status: rowData[1] || 'Unknown',
-              date: rowData[2] || new Date().toLocaleDateString('en-AU', { timeZone: 'Australia/Melbourne' }),
-              details: rowData.slice(3).join(' ') || 'No additional details'
-            });
-          }
+      // Try to find fire danger rating for this day
+      let fireDangerRating = 'NO RATING';
+      let totalFireBan = false;
+      
+      // Look for fire danger rating in the page content
+      const content = document.body.textContent || document.body.innerText || '';
+      
+      // Extract current day's rating (for today)
+      if (i === 0) {
+        // Look for current fire danger rating
+        const ratingMatch = content.match(/Fire Danger Rating[\s\S]*?(LOW-MODERATE|MODERATE|HIGH|EXTREME|CATASTROPHIC|NO RATING)/i);
+        if (ratingMatch) {
+          fireDangerRating = ratingMatch[1].toUpperCase();
+        }
+        
+        // Check for total fire ban
+        if (content.toLowerCase().includes('total fire ban') && content.toLowerCase().includes('in force')) {
+          totalFireBan = true;
+        }
+      }
+      
+      forecastData.push({
+        day: dayLabel,
+        date: dateString,
+        fireDangerRating: fireDangerRating,
+        totalFireBan: totalFireBan,
+        district: 'North Central Fire District'
+      });
+    }
+    
+    // If we couldn't extract specific ratings, try alternative parsing
+    if (forecastData.every(day => day.fireDangerRating === 'NO RATING')) {
+      console.log('🔍 Trying alternative parsing methods...');
+      
+      // Look for specific patterns in the HTML
+      const htmlContent = response.data;
+      
+      // Try to find fire danger images or indicators
+      const ratingPatterns = [
+        /low[\s-]*moderate/gi,
+        /moderate/gi,
+        /high/gi,
+        /extreme/gi,
+        /catastrophic/gi
+      ];
+      
+      ratingPatterns.forEach((pattern, index) => {
+        const matches = htmlContent.match(pattern);
+        if (matches && forecastData[0]) {
+          const ratings = ['LOW-MODERATE', 'MODERATE', 'HIGH', 'EXTREME', 'CATASTROPHIC'];
+          forecastData[0].fireDangerRating = ratings[index];
         }
       });
-
-      if (fireInfo.length === 0) {
-        // If no table data, create sample structure based on CFA format
-        fireInfo.push({
-          location: 'North Central Fire District',
-          status: 'Data being loaded...',
-          date: new Date().toLocaleDateString('en-AU', { timeZone: 'Australia/Melbourne' }),
-          details: 'Please check CFA website for current information'
-        });
-      }
-
-      return fireInfo;
     }
-
-    // Parse table data
-    const rows = table.querySelectorAll('tr');
-    const fireData = [];
-
-    rows.forEach((row, index) => {
-      const cells = row.querySelectorAll('td');
-      if (cells.length > 0) {
-        fireData.push({
-          location: cells[0]?.textContent.trim() || `Location ${index}`,
-          status: cells[1]?.textContent.trim() || 'Unknown',
-          date: cells[2]?.textContent.trim() || new Date().toLocaleDateString('en-AU', { timeZone: 'Australia/Melbourne' }),
-          details: cells[3]?.textContent.trim() || 'No additional details'
-        });
-      }
-    });
-
-    console.log(`✅ Successfully scraped ${fireData.length} entries`);
-    return fireData;
+    
+    console.log(`✅ Successfully scraped ${forecastData.length} day forecast`);
+    return forecastData;
 
   } catch (error) {
     console.error('❌ Error scraping CFA data:', error.message);
-    return [{
-      location: 'North Central Fire District',
-      status: 'Error loading data',
-      date: new Date().toLocaleDateString('en-AU', { timeZone: 'Australia/Melbourne' }),
-      details: 'Unable to fetch current fire information. Please try again later.'
-    }];
+    
+    // Return default 4-day structure on error
+    const currentDate = new Date();
+    const defaultData = [];
+    
+    for (let i = 0; i < 4; i++) {
+      const forecastDate = new Date(currentDate);
+      forecastDate.setDate(currentDate.getDate() + i);
+      
+      const dayLabel = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : `Day ${i + 1}`;
+      const dateString = forecastDate.toLocaleDateString('en-AU', { 
+        timeZone: 'Australia/Melbourne',
+        weekday: 'short',
+        day: 'numeric',
+        month: 'long'
+      });
+      
+      defaultData.push({
+        day: dayLabel,
+        date: dateString,
+        fireDangerRating: 'ERROR LOADING',
+        totalFireBan: false,
+        district: 'North Central Fire District'
+      });
+    }
+    
+    return defaultData;
   }
 }
 

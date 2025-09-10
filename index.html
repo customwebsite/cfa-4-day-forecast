@@ -95,39 +95,62 @@
         .status-icon.loading { background-color: #ffc107; }
         .status-icon.error { background-color: #dc3545; }
         
-        .fire-danger-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
+        .forecast-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .forecast-day {
             background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
         
-        .fire-danger-table th {
-            background-color: #003366;
-            color: white;
-            padding: 12px;
-            text-align: left;
-            font-weight: bold;
-            border: 1px solid #ddd;
+        .forecast-day:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
         }
         
-        .fire-danger-table td {
-            padding: 12px;
-            border: 1px solid #ddd;
-            vertical-align: top;
+        .forecast-day.today {
+            border-color: #003366;
+            border-width: 3px;
         }
         
-        .fire-danger-table tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        
-        .fire-danger-table tr:hover {
-            background-color: #f0f0f0;
-        }
-        
-        .municipality-name {
+        .day-header {
+            font-size: 1.1em;
             font-weight: bold;
             color: #003366;
+            margin-bottom: 5px;
+        }
+        
+        .day-date {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .fire-danger-badge {
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .total-fire-ban {
+            background: #dc3545;
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 0.9em;
         }
         
         .restrictions-status {
@@ -138,34 +161,60 @@
             text-align: center;
         }
         
-        .status-no-rating { 
+        .rating-no-rating { 
             background-color: #e9ecef; 
             color: #495057;
         }
         
-        .status-low { 
-            background-color: #d4edda; 
-            color: #155724;
+        .rating-low-moderate { 
+            background-color: #28a745; 
+            color: white;
         }
         
-        .status-moderate { 
-            background-color: #fff3cd; 
-            color: #856404;
+        .rating-moderate { 
+            background-color: #ffc107; 
+            color: #212529;
         }
         
-        .status-high { 
-            background-color: #f8d7da; 
-            color: #721c24;
+        .rating-high { 
+            background-color: #fd7e14; 
+            color: white;
         }
         
-        .status-extreme { 
-            background-color: #f5c6cb; 
-            color: #491217;
+        .rating-extreme { 
+            background-color: #dc3545; 
+            color: white;
         }
         
-        .status-catastrophic {
+        .rating-catastrophic {
             background-color: #6f2c91;
             color: white;
+        }
+        
+        .rating-error {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .fire-danger-scale {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .fire-danger-scale h3 {
+            color: #003366;
+            margin-bottom: 15px;
+        }
+        
+        .fire-danger-scale img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
         
         .refresh-btn {
@@ -273,13 +322,18 @@
                 align-items: flex-start;
             }
             
-            .fire-danger-table {
-                font-size: 0.9em;
+            .forecast-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
             }
             
-            .fire-danger-table th,
-            .fire-danger-table td {
-                padding: 8px;
+            .forecast-day {
+                padding: 15px;
+            }
+            
+            .fire-danger-badge {
+                font-size: 1em;
+                padding: 10px;
             }
         }
     </style>
@@ -318,18 +372,33 @@
 
         <div class="forecast-section">
             <div class="forecast-header">
-                Fire Restrictions by Municipality
+                4 Day Fire Danger Forecast
             </div>
             <div class="forecast-content">
-                <p>Below is a table of Fire Restrictions for the municipalities that are located within the <strong>North Central</strong> fire district.</p>
-                
                 <div id="fireContainer">
                     <div class="loading">
-                        <h3>Loading fire danger information...</h3>
-                        <p>Please wait while we fetch the latest data from CFA.</p>
+                        <h3>Loading fire danger ratings...</h3>
+                        <p>Please wait while we fetch the latest fire danger ratings from CFA.</p>
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="fire-danger-scale">
+            <h3>Fire Danger Ratings Scale</h3>
+            <p>Understanding what each fire danger rating means and what you should do:</p>
+            <img src="https://www.cfa.vic.gov.au/images/UserUploadedImages/11/map-bar.png" 
+                 alt="Fire Danger Ratings Scale - shows Low-Moderate (Green), Moderate (Yellow), High (Orange), Extreme (Red), and Catastrophic (Purple) ratings"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <div style="display:none; padding: 15px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; margin-top: 10px;">
+                <p><strong>Fire Danger Rating Scale:</strong></p>
+                <p>🟢 <strong>Low-Moderate:</strong> Fire can start and spread. Be alert.</p>
+                <p>🟡 <strong>Moderate:</strong> Fires can spread. Be prepared and stay alert.</p>
+                <p>🟠 <strong>High:</strong> Fires will spread rapidly and be difficult to control. Be ready to act.</p>
+                <p>🔴 <strong>Extreme:</strong> Fires will spread rapidly and be extremely difficult to control. Take action now.</p>
+                <p>🟣 <strong>Catastrophic:</strong> If a fire starts it will be uncontrollable, unpredictable and fast moving. Leave bushfire risk areas immediately.</p>
+            </div>
+            <p style="margin-top: 15px;"><a href="https://www.cfa.vic.gov.au/warnings-restrictions/fire-bans-ratings-and-restrictions/about-fire-danger-ratings" target="_blank">Learn more about Fire Danger Ratings</a></p>
         </div>
 
         <div class="emergency-notice">
@@ -394,28 +463,18 @@
                 const container = document.getElementById('fireContainer');
                 
                 if (!this.data || !this.data.data || this.data.data.length === 0) {
-                    container.innerHTML = '<div class="error">No fire data available from CFA.</div>';
+                    container.innerHTML = '<div class="error">No fire danger data available from CFA.</div>';
                     return;
                 }
 
-                // Create table structure like CFA website
-                const tableHTML = `
-                    <table class="fire-danger-table">
-                        <thead>
-                            <tr>
-                                <th>Municipality</th>
-                                <th>Restrictions in force?</th>
-                                <th>Start Date</th>
-                                <th>End Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${this.data.data.map(item => this.createTableRow(item)).join('')}
-                        </tbody>
-                    </table>
+                // Create forecast grid
+                const forecastHTML = `
+                    <div class="forecast-grid">
+                        ${this.data.data.map((day, index) => this.createForecastDay(day, index)).join('')}
+                    </div>
                 `;
                 
-                container.innerHTML = tableHTML;
+                container.innerHTML = forecastHTML;
                 
                 // Update timestamp information
                 if (this.data.lastUpdated) {
@@ -431,32 +490,32 @@
                 }
             }
 
-            createTableRow(item) {
-                const statusClass = this.getStatusClass(item.status);
+            createForecastDay(day, index) {
+                const ratingClass = this.getRatingClass(day.fireDangerRating);
+                const isToday = index === 0;
                 
                 return `
-                    <tr>
-                        <td class="municipality-name">${this.escapeHtml(item.location)}</td>
-                        <td>
-                            <div class="restrictions-status ${statusClass}">
-                                ${this.escapeHtml(item.status)}
-                            </div>
-                        </td>
-                        <td>${this.escapeHtml(item.date)}</td>
-                        <td>${this.escapeHtml(item.details)}</td>
-                    </tr>
+                    <div class="forecast-day ${isToday ? 'today' : ''}">
+                        <div class="day-header">${this.escapeHtml(day.day)}</div>
+                        <div class="day-date">${this.escapeHtml(day.date)}</div>
+                        <div class="fire-danger-badge ${ratingClass}">
+                            ${this.escapeHtml(day.fireDangerRating)}
+                        </div>
+                        ${day.totalFireBan ? '<div class="total-fire-ban">⚠️ TOTAL FIRE BAN</div>' : ''}
+                        <div class="district-name">${this.escapeHtml(day.district)}</div>
+                    </div>
                 `;
             }
 
-            getStatusClass(status) {
-                const statusLower = status.toLowerCase();
-                if (statusLower.includes('low') || statusLower.includes('green')) return 'status-low';
-                if (statusLower.includes('moderate') || statusLower.includes('yellow')) return 'status-moderate';
-                if (statusLower.includes('high') || statusLower.includes('orange')) return 'status-high';
-                if (statusLower.includes('extreme') || statusLower.includes('red')) return 'status-extreme';
-                if (statusLower.includes('catastrophic') || statusLower.includes('purple')) return 'status-catastrophic';
-                if (statusLower.includes('no rating') || statusLower.includes('no - restrictions')) return 'status-no-rating';
-                return 'status-no-rating';
+            getRatingClass(rating) {
+                const ratingLower = rating.toLowerCase();
+                if (ratingLower.includes('low-moderate')) return 'rating-low-moderate';
+                if (ratingLower.includes('moderate') && !ratingLower.includes('low')) return 'rating-moderate';
+                if (ratingLower.includes('high')) return 'rating-high';
+                if (ratingLower.includes('extreme')) return 'rating-extreme';
+                if (ratingLower.includes('catastrophic')) return 'rating-catastrophic';
+                if (ratingLower.includes('error')) return 'rating-error';
+                return 'rating-no-rating';
             }
 
             updateStatus(type, message) {
