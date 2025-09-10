@@ -3,41 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CFA Fire Danger Forecast</title>
+    <title>CFA Fire Danger Forecast - North Central Fire District</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            max-width: 1200px;
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.4;
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f5f5f5;
         }
         
         .header {
-            background: linear-gradient(135deg, #d32f2f, #f44336);
+            background-color: #003366;
             color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
         
         .header h1 {
             margin: 0;
-            font-size: 2.2em;
+            font-size: 1.8em;
+            font-weight: normal;
         }
         
         .header p {
             margin: 5px 0 0 0;
+            font-size: 1.1em;
             opacity: 0.9;
         }
         
-        .status-bar {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
+        .forecast-section {
+            background: #f8f8f8;
+            border: 1px solid #ddd;
             margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 0;
+        }
+        
+        .forecast-header {
+            background: #e6e6e6;
+            border-bottom: 1px solid #ddd;
+            padding: 12px 15px;
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #333;
+        }
+        
+        .forecast-content {
+            padding: 15px;
+        }
+        
+        .status-bar {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -48,128 +81,191 @@
             display: flex;
             align-items: center;
             margin: 5px 0;
+            font-size: 0.9em;
         }
         
         .status-icon {
-            width: 20px;
-            height: 20px;
-            margin-right: 8px;
+            width: 12px;
+            height: 12px;
+            margin-right: 6px;
             border-radius: 50%;
         }
         
-        .status-icon.online { background-color: #4caf50; }
-        .status-icon.loading { background-color: #ff9800; }
-        .status-icon.error { background-color: #f44336; }
+        .status-icon.online { background-color: #28a745; }
+        .status-icon.loading { background-color: #ffc107; }
+        .status-icon.error { background-color: #dc3545; }
         
-        .fire-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+        .fire-danger-table {
+            width: 100%;
+            border-collapse: collapse;
             margin-bottom: 20px;
-        }
-        
-        .fire-card {
             background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            border-left: 5px solid #f44336;
-            transition: transform 0.2s;
         }
         
-        .fire-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-        }
-        
-        .fire-card h3 {
-            margin: 0 0 10px 0;
-            color: #d32f2f;
-            font-size: 1.3em;
-        }
-        
-        .fire-status {
-            font-size: 1.1em;
+        .fire-danger-table th {
+            background-color: #003366;
+            color: white;
+            padding: 12px;
+            text-align: left;
             font-weight: bold;
-            margin: 10px 0;
-            padding: 8px 12px;
-            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .fire-danger-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+        
+        .fire-danger-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .fire-danger-table tr:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .municipality-name {
+            font-weight: bold;
+            color: #003366;
+        }
+        
+        .restrictions-status {
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            font-weight: bold;
             text-align: center;
         }
         
-        .status-low { background-color: #e8f5e8; color: #2e7d32; }
-        .status-moderate { background-color: #fff3e0; color: #f57c00; }
-        .status-high { background-color: #ffebee; color: #d32f2f; }
-        .status-extreme { background-color: #fce4ec; color: #c2185b; }
-        .status-unknown { background-color: #f5f5f5; color: #666; }
-        
-        .fire-date {
-            color: #666;
-            font-size: 0.95em;
-            margin: 8px 0;
+        .status-no-rating { 
+            background-color: #e9ecef; 
+            color: #495057;
         }
         
-        .fire-details {
-            color: #444;
-            line-height: 1.4;
-            margin-top: 10px;
+        .status-low { 
+            background-color: #d4edda; 
+            color: #155724;
+        }
+        
+        .status-moderate { 
+            background-color: #fff3cd; 
+            color: #856404;
+        }
+        
+        .status-high { 
+            background-color: #f8d7da; 
+            color: #721c24;
+        }
+        
+        .status-extreme { 
+            background-color: #f5c6cb; 
+            color: #491217;
+        }
+        
+        .status-catastrophic {
+            background-color: #6f2c91;
+            color: white;
         }
         
         .refresh-btn {
-            background: linear-gradient(135deg, #d32f2f, #f44336);
+            background-color: #003366;
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
+            padding: 8px 16px;
+            border-radius: 3px;
             cursor: pointer;
-            font-size: 1em;
-            margin: 10px 5px;
-            transition: all 0.3s;
+            font-size: 0.9em;
+            margin: 5px 0;
         }
         
         .refresh-btn:hover {
-            background: linear-gradient(135deg, #b71c1c, #d32f2f);
-            transform: translateY(-1px);
+            background-color: #004080;
         }
         
         .refresh-btn:disabled {
-            background: #ccc;
+            background-color: #6c757d;
             cursor: not-allowed;
-            transform: none;
         }
         
         .loading {
             text-align: center;
             padding: 40px;
             color: #666;
+            background: white;
         }
         
         .error {
-            background: #ffebee;
-            color: #d32f2f;
+            background: #f8d7da;
+            color: #721c24;
             padding: 15px;
-            border-radius: 5px;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
             margin: 20px 0;
-            border-left: 4px solid #d32f2f;
         }
 
-        .disclaimer {
-            background: #e3f2fd;
-            color: #1565c0;
+        .info-links {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
             padding: 15px;
-            border-radius: 5px;
-            margin-top: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .info-links h3 {
+            margin: 0 0 10px 0;
+            color: #0c5460;
+            font-size: 1.1em;
+        }
+        
+        .info-links a {
+            color: #0c5460;
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: bold;
+        }
+        
+        .info-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .source-footer {
+            background: #f8f9fa;
+            border-top: 2px solid #003366;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
             font-size: 0.9em;
-            border-left: 4px solid #1565c0;
+        }
+        
+        .source-footer a {
+            color: #003366;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .source-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .emergency-notice {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+            color: #721c24;
         }
         
         @media (max-width: 768px) {
-            body {
+            .container {
                 padding: 10px;
             }
             
             .header h1 {
-                font-size: 1.8em;
+                font-size: 1.5em;
             }
             
             .status-bar {
@@ -177,45 +273,77 @@
                 align-items: flex-start;
             }
             
-            .fire-grid {
-                grid-template-columns: 1fr;
+            .fire-danger-table {
+                font-size: 0.9em;
+            }
+            
+            .fire-danger-table th,
+            .fire-danger-table td {
+                padding: 8px;
             }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>🔥 CFA Fire Danger Forecast</h1>
-        <p>North Central Fire District - Victoria, Australia</p>
-    </div>
-
-    <div class="status-bar">
-        <div class="status-item">
-            <div class="status-icon loading" id="statusIcon"></div>
-            <span id="statusText">Loading...</span>
-        </div>
-        <div class="status-item">
-            <span id="lastUpdated">Last updated: Never</span>
-        </div>
-        <div class="status-item">
-            <span id="nextUpdate">Next update: Calculating...</span>
-        </div>
-        <div class="status-item">
-            <button class="refresh-btn" onclick="refreshData()" id="refreshBtn">Refresh Now</button>
+        <div class="header-content">
+            <h1>North Central Fire District</h1>
+            <p>Fire Danger Ratings and Total Fire Bans - Victoria, Australia</p>
         </div>
     </div>
 
-    <div id="fireContainer">
-        <div class="loading">
-            <h3>🔄 Loading fire danger information...</h3>
-            <p>Please wait while we fetch the latest data from CFA.</p>
+    <div class="container">
+        <div class="info-links">
+            <h3>Important Information:</h3>
+            <a href="https://www.cfa.vic.gov.au/warnings-restrictions/fire-bans-ratings-and-restrictions/about-fire-danger-ratings" target="_blank">Find out more about Fire Danger Ratings</a>
+            <a href="https://www.cfa.vic.gov.au/warnings-restrictions/fire-bans-ratings-and-restrictions/about-total-fire-bans" target="_blank">Find out more about Total Fire Bans</a>
+            <a href="https://www.cfa.vic.gov.au/warnings-restrictions/total-fire-bans-and-ratings/can-i-or-cant-i" target="_blank">Check what you can and can't do</a>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-icon loading" id="statusIcon"></div>
+                <span id="statusText">Loading latest fire data...</span>
+            </div>
+            <div class="status-item">
+                <span id="lastUpdated">Last updated: Never</span>
+            </div>
+            <div class="status-item">
+                <span id="nextUpdate">Next update: Calculating...</span>
+            </div>
+            <div class="status-item">
+                <button class="refresh-btn" onclick="refreshData()" id="refreshBtn">Refresh Now</button>
+            </div>
+        </div>
+
+        <div class="forecast-section">
+            <div class="forecast-header">
+                Fire Restrictions by Municipality
+            </div>
+            <div class="forecast-content">
+                <p>Below is a table of Fire Restrictions for the municipalities that are located within the <strong>North Central</strong> fire district.</p>
+                
+                <div id="fireContainer">
+                    <div class="loading">
+                        <h3>Loading fire danger information...</h3>
+                        <p>Please wait while we fetch the latest data from CFA.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="emergency-notice">
+            ⚠️ <strong>EMERGENCY:</strong> In case of fire emergency, call <strong>000</strong> immediately
         </div>
     </div>
 
-    <div class="disclaimer">
-        <strong>⚠️ Important:</strong> This information is for general reference only. 
-        Always check the official CFA website for the most current fire danger ratings and restrictions. 
-        In case of emergency, call 000.
+    <div class="source-footer">
+        <p><strong>Data Source:</strong> 
+        <a href="https://www.cfa.vic.gov.au/warnings-restrictions/fire-bans-ratings-and-restrictions/total-fire-bans-fire-danger-ratings/north-central-fire-district" target="_blank">
+            CFA Victoria - North Central Fire District Official Website
+        </a></p>
+        <p>This information is for general reference only. Always check the official CFA website for the most current fire danger ratings and restrictions.</p>
+        <p><small>Data automatically updated twice daily at 6 AM and 6 PM (Melbourne time)</small></p>
     </div>
 
     <script>
@@ -235,7 +363,7 @@
                 if (this.isLoading) return;
                 
                 this.isLoading = true;
-                this.updateStatus('loading', 'Fetching latest fire data...');
+                this.updateStatus('loading', 'Fetching latest fire data from CFA...');
                 this.setRefreshButton(true);
 
                 try {
@@ -250,11 +378,11 @@
                     const result = await response.json();
                     this.data = result;
                     this.renderData();
-                    this.updateStatus('online', 'Data loaded successfully');
+                    this.updateStatus('online', 'Data loaded successfully from CFA');
                     
                 } catch (error) {
                     console.error('Error fetching fire data:', error);
-                    this.showError('Failed to load fire data. Please try again.');
+                    this.showError('Failed to load fire data from CFA. Please try again or visit the official CFA website.');
                     this.updateStatus('error', 'Error loading data');
                 } finally {
                     this.isLoading = false;
@@ -266,43 +394,57 @@
                 const container = document.getElementById('fireContainer');
                 
                 if (!this.data || !this.data.data || this.data.data.length === 0) {
-                    container.innerHTML = '<div class="error">No fire data available.</div>';
+                    container.innerHTML = '<div class="error">No fire data available from CFA.</div>';
                     return;
                 }
 
-                const fireCards = this.data.data.map(item => this.createFireCard(item)).join('');
-                container.innerHTML = `<div class="fire-grid">${fireCards}</div>`;
+                // Create table structure like CFA website
+                const tableHTML = `
+                    <table class="fire-danger-table">
+                        <thead>
+                            <tr>
+                                <th>Municipality</th>
+                                <th>Restrictions in force?</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${this.data.data.map(item => this.createTableRow(item)).join('')}
+                        </tbody>
+                    </table>
+                `;
+                
+                container.innerHTML = tableHTML;
                 
                 // Update timestamp information
                 if (this.data.lastUpdated) {
                     const lastUpdated = new Date(this.data.lastUpdated);
                     document.getElementById('lastUpdated').textContent = 
-                        `Last updated: ${lastUpdated.toLocaleString()}`;
+                        `Last updated: ${lastUpdated.toLocaleString('en-AU', { timeZone: 'Australia/Melbourne' })} (Melbourne time)`;
                 }
                 
                 if (this.data.nextUpdate) {
                     const nextUpdate = new Date(this.data.nextUpdate);
                     document.getElementById('nextUpdate').textContent = 
-                        `Next update: ${nextUpdate.toLocaleString()}`;
+                        `Next update: ${nextUpdate.toLocaleString('en-AU', { timeZone: 'Australia/Melbourne' })} (Melbourne time)`;
                 }
             }
 
-            createFireCard(item) {
+            createTableRow(item) {
                 const statusClass = this.getStatusClass(item.status);
                 
                 return `
-                    <div class="fire-card">
-                        <h3>${this.escapeHtml(item.location)}</h3>
-                        <div class="fire-status ${statusClass}">
-                            ${this.escapeHtml(item.status)}
-                        </div>
-                        <div class="fire-date">
-                            📅 ${this.escapeHtml(item.date)}
-                        </div>
-                        <div class="fire-details">
-                            ${this.escapeHtml(item.details)}
-                        </div>
-                    </div>
+                    <tr>
+                        <td class="municipality-name">${this.escapeHtml(item.location)}</td>
+                        <td>
+                            <div class="restrictions-status ${statusClass}">
+                                ${this.escapeHtml(item.status)}
+                            </div>
+                        </td>
+                        <td>${this.escapeHtml(item.date)}</td>
+                        <td>${this.escapeHtml(item.details)}</td>
+                    </tr>
                 `;
             }
 
@@ -312,7 +454,9 @@
                 if (statusLower.includes('moderate') || statusLower.includes('yellow')) return 'status-moderate';
                 if (statusLower.includes('high') || statusLower.includes('orange')) return 'status-high';
                 if (statusLower.includes('extreme') || statusLower.includes('red')) return 'status-extreme';
-                return 'status-unknown';
+                if (statusLower.includes('catastrophic') || statusLower.includes('purple')) return 'status-catastrophic';
+                if (statusLower.includes('no rating') || statusLower.includes('no - restrictions')) return 'status-no-rating';
+                return 'status-no-rating';
             }
 
             updateStatus(type, message) {
