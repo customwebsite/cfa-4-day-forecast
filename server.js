@@ -63,56 +63,36 @@ async function scrapeCFAData() {
       
       // Extract current day's rating (for today)
       if (i === 0) {
-        // Try multiple approaches to find the fire danger rating
-        console.log(`🔍 Searching for fire danger rating...`);
-        console.log(`🔍 Content length: ${content.length} characters`);
-        console.log(`🔍 Content contains "NO RATING": ${content.includes('NO RATING')}`);
-        console.log(`🔍 Response data contains "no-rating.gif": ${response.data.includes('no-rating.gif')}`);
+        console.log(`🔍 Searching for fire danger rating in .fdrRating element...`);
         
-        // Show content around "Fire Danger Rating" section
-        const fireDangerIndex = content.indexOf('Fire Danger Rating');
-        if (fireDangerIndex !== -1) {
-          const contextStart = Math.max(0, fireDangerIndex - 50);
-          const contextEnd = Math.min(content.length, fireDangerIndex + 200);
-          console.log(`🔍 Fire Danger Rating context: "${content.substring(contextStart, contextEnd)}"`);
-        }
-        
-        // Approach 1: Look for "NO RATING" explicitly in content
-        if (content.includes('NO RATING')) {
-          fireDangerRating = 'NO RATING';
-          console.log(`✅ Found "NO RATING" in content`);
-        }
-        // Approach 2: Check for no-rating.gif image reference
-        else if (response.data.includes('no-rating.gif')) {
-          fireDangerRating = 'NO RATING';
-          console.log(`✅ Found no-rating.gif image - indicates NO RATING`);
-        }
-        // Approach 3: Try regex patterns for specific ratings
-        else {
-          const ratingPatterns = {
-            'LOW-MODERATE': /low[\s-]*moderate/gi,
-            'MODERATE': /(?<!low[\s-]*)moderate(?![\s-]*)/gi,
-            'HIGH': /(?<!-)high(?!-)/gi,
-            'EXTREME': /extreme/gi,
-            'CATASTROPHIC': /catastrophic/gi
-          };
+        // Look for the fire danger rating in the specific div with class "fdrRating"
+        const fdrRatingElement = document.querySelector('.fdrRating');
+        if (fdrRatingElement) {
+          console.log(`✅ Found .fdrRating element`);
           
-          let foundRating = false;
-          for (const [rating, pattern] of Object.entries(ratingPatterns)) {
-            if (content.match(pattern) && !foundRating) {
-              fireDangerRating = rating;
-              foundRating = true;
-              console.log(`🎯 Found rating in content: ${rating}`);
-              break;
+          // Look for the actual rating text within the element or its children
+          const fullText = fdrRatingElement.textContent.trim();
+          console.log(`🔍 Full .fdrRating content: "${fullText}"`);
+          
+          // Try to extract just the rating part (not the header)
+          const ratingMatch = fullText.match(/(NO RATING|LOW-MODERATE|MODERATE|HIGH|EXTREME|CATASTROPHIC)/i);
+          if (ratingMatch) {
+            fireDangerRating = ratingMatch[1].toUpperCase();
+            console.log(`✅ Extracted fire danger rating: "${fireDangerRating}"`);
+          } else {
+            // If no specific rating found, check if it contains "NO RATING" anywhere
+            if (fullText.toLowerCase().includes('no rating')) {
+              fireDangerRating = 'NO RATING';
+              console.log(`✅ Found "no rating" in text, setting to NO RATING`);
+            } else {
+              console.log(`⚠️ Could not extract specific rating from: "${fullText}"`);
             }
           }
-          
-          if (!foundRating) {
-            console.log(`❓ No specific fire danger rating found, keeping default NO RATING`);
-          }
+        } else {
+          console.log(`❌ Could not find .fdrRating element`);
         }
         
-        // Check for total fire ban
+        // Check for total fire ban status
         if (content.toLowerCase().includes('total fire ban') && content.toLowerCase().includes('in force')) {
           totalFireBan = true;
           console.log(`🚨 Total Fire Ban is in force`);
