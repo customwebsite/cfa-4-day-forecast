@@ -63,15 +63,62 @@ async function scrapeCFAData() {
       
       // Extract current day's rating (for today)
       if (i === 0) {
-        // Look for current fire danger rating
-        const ratingMatch = content.match(/Fire Danger Rating[\s\S]*?(LOW-MODERATE|MODERATE|HIGH|EXTREME|CATASTROPHIC|NO RATING)/i);
-        if (ratingMatch) {
-          fireDangerRating = ratingMatch[1].toUpperCase();
+        // Try multiple approaches to find the fire danger rating
+        console.log(`🔍 Searching for fire danger rating...`);
+        console.log(`🔍 Content length: ${content.length} characters`);
+        console.log(`🔍 Content contains "NO RATING": ${content.includes('NO RATING')}`);
+        console.log(`🔍 Response data contains "no-rating.gif": ${response.data.includes('no-rating.gif')}`);
+        
+        // Show content around "Fire Danger Rating" section
+        const fireDangerIndex = content.indexOf('Fire Danger Rating');
+        if (fireDangerIndex !== -1) {
+          const contextStart = Math.max(0, fireDangerIndex - 50);
+          const contextEnd = Math.min(content.length, fireDangerIndex + 200);
+          console.log(`🔍 Fire Danger Rating context: "${content.substring(contextStart, contextEnd)}"`);
+        }
+        
+        // Approach 1: Look for "NO RATING" explicitly in content
+        if (content.includes('NO RATING')) {
+          fireDangerRating = 'NO RATING';
+          console.log(`✅ Found "NO RATING" in content`);
+        }
+        // Approach 2: Check for no-rating.gif image reference
+        else if (response.data.includes('no-rating.gif')) {
+          fireDangerRating = 'NO RATING';
+          console.log(`✅ Found no-rating.gif image - indicates NO RATING`);
+        }
+        // Approach 3: Try regex patterns for specific ratings
+        else {
+          const ratingPatterns = {
+            'LOW-MODERATE': /low[\s-]*moderate/gi,
+            'MODERATE': /(?<!low[\s-]*)moderate(?![\s-]*)/gi,
+            'HIGH': /(?<!-)high(?!-)/gi,
+            'EXTREME': /extreme/gi,
+            'CATASTROPHIC': /catastrophic/gi
+          };
+          
+          let foundRating = false;
+          for (const [rating, pattern] of Object.entries(ratingPatterns)) {
+            if (content.match(pattern) && !foundRating) {
+              fireDangerRating = rating;
+              foundRating = true;
+              console.log(`🎯 Found rating in content: ${rating}`);
+              break;
+            }
+          }
+          
+          if (!foundRating) {
+            console.log(`❓ No specific fire danger rating found, keeping default NO RATING`);
+          }
         }
         
         // Check for total fire ban
         if (content.toLowerCase().includes('total fire ban') && content.toLowerCase().includes('in force')) {
           totalFireBan = true;
+          console.log(`🚨 Total Fire Ban is in force`);
+        } else if (content.toLowerCase().includes('not currently a day of total fire ban')) {
+          totalFireBan = false;
+          console.log(`✅ No Total Fire Ban today`);
         }
       }
       
@@ -84,29 +131,15 @@ async function scrapeCFAData() {
       });
     }
     
-    // If we couldn't extract specific ratings, try alternative parsing
-    if (forecastData.every(day => day.fireDangerRating === 'NO RATING')) {
-      console.log('🔍 Trying alternative parsing methods...');
-      
-      // Look for specific patterns in the HTML
-      const htmlContent = response.data;
-      
-      // Try to find fire danger images or indicators
-      const ratingPatterns = [
-        /low[\s-]*moderate/gi,
-        /moderate/gi,
-        /high/gi,
-        /extreme/gi,
-        /catastrophic/gi
-      ];
-      
-      ratingPatterns.forEach((pattern, index) => {
-        const matches = htmlContent.match(pattern);
-        if (matches && forecastData[0]) {
-          const ratings = ['LOW-MODERATE', 'MODERATE', 'HIGH', 'EXTREME', 'CATASTROPHIC'];
-          forecastData[0].fireDangerRating = ratings[index];
-        }
-      });
+    // Log the extracted rating for today
+    console.log(`🔍 Today's fire danger rating: ${forecastData[0]?.fireDangerRating}`);
+    
+    // Final validation - NO RATING is a valid result from CFA
+    if (forecastData[0]) {
+      console.log(`🏁 Final result for today: ${forecastData[0].fireDangerRating}`);
+      if (forecastData[0].fireDangerRating === 'NO RATING') {
+        console.log(`✅ NO RATING is the correct fire danger status from CFA`);
+      }
     }
     
     console.log(`✅ Successfully scraped ${forecastData.length} day forecast`);
