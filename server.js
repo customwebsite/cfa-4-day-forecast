@@ -4,6 +4,9 @@ const { JSDOM } = require('jsdom');
 const cron = require('node-cron');
 const path = require('path');
 
+// Set timezone to Melbourne, Australia
+process.env.TZ = 'Australia/Melbourne';
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -49,7 +52,7 @@ async function scrapeCFAData() {
             fireInfo.push({
               location: rowData[0] || 'Unknown',
               status: rowData[1] || 'Unknown',
-              date: rowData[2] || new Date().toLocaleDateString(),
+              date: rowData[2] || new Date().toLocaleDateString('en-AU', { timeZone: 'Australia/Melbourne' }),
               details: rowData.slice(3).join(' ') || 'No additional details'
             });
           }
@@ -61,7 +64,7 @@ async function scrapeCFAData() {
         fireInfo.push({
           location: 'North Central Fire District',
           status: 'Data being loaded...',
-          date: new Date().toLocaleDateString(),
+          date: new Date().toLocaleDateString('en-AU', { timeZone: 'Australia/Melbourne' }),
           details: 'Please check CFA website for current information'
         });
       }
@@ -79,7 +82,7 @@ async function scrapeCFAData() {
         fireData.push({
           location: cells[0]?.textContent.trim() || `Location ${index}`,
           status: cells[1]?.textContent.trim() || 'Unknown',
-          date: cells[2]?.textContent.trim() || new Date().toLocaleDateString(),
+          date: cells[2]?.textContent.trim() || new Date().toLocaleDateString('en-AU', { timeZone: 'Australia/Melbourne' }),
           details: cells[3]?.textContent.trim() || 'No additional details'
         });
       }
@@ -93,7 +96,7 @@ async function scrapeCFAData() {
     return [{
       location: 'North Central Fire District',
       status: 'Error loading data',
-      date: new Date().toLocaleDateString(),
+      date: new Date().toLocaleDateString('en-AU', { timeZone: 'Australia/Melbourne' }),
       details: 'Unable to fetch current fire information. Please try again later.'
     }];
   }
@@ -104,7 +107,7 @@ async function updateCache() {
   console.log('📦 Updating cache...');
   cachedData = await scrapeCFAData();
   lastUpdated = new Date();
-  console.log(`✅ Cache updated at ${lastUpdated.toLocaleString()}`);
+  console.log(`✅ Cache updated at ${lastUpdated.toLocaleString('en-AU', { timeZone: 'Australia/Melbourne' })} (Melbourne time)`);
 }
 
 // API endpoint to get fire data
@@ -122,15 +125,23 @@ app.get('/api/fire-data', async (req, res) => {
   });
 });
 
-// Get next scheduled update time
+// Get next scheduled update time (Melbourne timezone)
 function getNextUpdateTime() {
   const now = new Date();
   const next = new Date(now);
   
-  // Next update at 6 AM or 6 PM
-  if (now.getHours() < 6) {
+  // Get current hour in Melbourne timezone
+  const melbourneHour = new Date().toLocaleString('en-AU', { 
+    timeZone: 'Australia/Melbourne', 
+    hour: 'numeric', 
+    hour12: false 
+  });
+  const currentHour = parseInt(melbourneHour);
+  
+  // Next update at 6 AM or 6 PM Melbourne time
+  if (currentHour < 6) {
     next.setHours(6, 0, 0, 0);
-  } else if (now.getHours() < 18) {
+  } else if (currentHour < 18) {
     next.setHours(18, 0, 0, 0);
   } else {
     next.setDate(next.getDate() + 1);
@@ -140,10 +151,12 @@ function getNextUpdateTime() {
   return next;
 }
 
-// Schedule cache updates twice daily (6 AM and 6 PM)
+// Schedule cache updates twice daily (6 AM and 6 PM Melbourne time)
 cron.schedule('0 6,18 * * *', () => {
-  console.log('⏰ Scheduled cache update triggered');
+  console.log('⏰ Scheduled cache update triggered (Melbourne time)');
   updateCache();
+}, {
+  timezone: 'Australia/Melbourne'
 });
 
 // Serve main page
@@ -157,5 +170,6 @@ updateCache();
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 CFA Fire Forecast server running on port ${PORT}`);
-  console.log(`📅 Cache updates scheduled for 6 AM and 6 PM daily`);
+  console.log(`📅 Cache updates scheduled for 6 AM and 6 PM daily (Melbourne time)`);
+  console.log(`🕐 Current Melbourne time: ${new Date().toLocaleString('en-AU', { timeZone: 'Australia/Melbourne' })}`);
 });
