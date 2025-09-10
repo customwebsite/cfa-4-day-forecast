@@ -24,33 +24,7 @@ externalPort = 8080
 localPort = 5000
 externalPort = 80
 
-[[ports]]
-localPort = 43663
-externalPort = 3001
-
 [agent]
 expertMode = true
 
 [workflows]
-runButton = "Project"
-
-[[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "CFA Fire Forecast Server"
-
-[[workflows.workflow]]
-name = "CFA Fire Forecast Server"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm start"
-waitForPort = 5000
-
-[workflows.workflow.metadata]
-outputType = "webview"

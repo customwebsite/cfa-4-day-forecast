@@ -1,52 +1,64 @@
-# CFA Fire Danger Forecast
+# CFA Fire Danger Forecast WordPress Plugin
 
 ## Overview
 
-This is a web application that provides real-time fire danger forecasts for Victoria, Australia by scraping data from the Country Fire Authority (CFA) website. The application displays fire danger ratings, total fire ban status, and weather conditions for different municipalities in the North Central Fire District. It features automated data collection, caching for performance, and a responsive web interface with color-coded danger levels.
+This is a WordPress plugin that provides real-time fire danger forecasts for Victoria, Australia by scraping data from the Country Fire Authority (CFA) website. The plugin displays fire danger ratings, total fire ban status, and 4-day forecasts for different CFA fire districts. It features automated data collection, WordPress transient caching for performance, and a responsive web interface with color-coded danger levels that can be embedded in any WordPress post or page using shortcodes.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
 
-## System Architecture
+## WordPress Plugin Architecture
+
+### Plugin Structure
+- **Main Plugin File**: `cfa-fire-forecast.php` - WordPress plugin header and initialization
+- **Modular Components**: Organized includes directory with separate classes for different functionality
+- **WordPress Standards**: Follows WordPress coding standards and plugin development best practices
+- **Shortcode Integration**: `[cfa_fire_forecast]` shortcode for easy content embedding
 
 ### Frontend Architecture
-- **Static HTML/CSS/JavaScript**: Single-page application served directly from the root directory
+- **WordPress Shortcode**: Easy integration into posts and pages via shortcode system
 - **Responsive Design**: CSS-based responsive layout optimized for desktop and mobile devices
-- **Color-coded Interface**: Visual fire danger indicators using gradient backgrounds and status colors
-- **Real-time Updates**: Client-side JavaScript fetches data from the backend API
+- **Color-coded Interface**: Visual fire danger indicators using official CFA colors and styling
+- **AJAX Refresh**: Client-side JavaScript with WordPress AJAX for data refresh functionality
 
 ### Backend Architecture
-- **Express.js Server**: Lightweight Node.js web server handling both static file serving and API endpoints
-- **Web Scraping Engine**: Uses Axios for HTTP requests and JSDOM for HTML parsing to extract fire data
-- **Automated Data Collection**: Node-cron scheduler runs periodic scraping jobs to keep data current
-- **In-memory Caching**: Simple caching mechanism to reduce load on external CFA website
-- **Fallback Parsing**: Robust scraping logic with multiple parsing strategies for different page layouts
+- **PHP Classes**: Object-oriented PHP structure with separate classes for scraping, frontend, admin, and scheduling
+- **WordPress HTTP API**: Uses WordPress native HTTP functions for secure external requests
+- **WordPress Transients**: Built-in WordPress caching system for efficient data storage
+- **WordPress Cron**: Native WordPress scheduling system for automated twice-daily updates
+- **Admin Interface**: WordPress admin settings page for plugin configuration
 
 ### Data Processing
-- **HTML Parsing**: JSDOM-based extraction of fire danger tables and ratings from CFA website
-- **Data Transformation**: Converts scraped HTML data into structured JSON format for API consumption
-- **Error Handling**: Graceful fallbacks when primary data sources are unavailable
+- **DOMDocument Parsing**: PHP DOMDocument for reliable HTML parsing of CFA website data
+- **Data Transformation**: Converts scraped HTML data into structured arrays for WordPress consumption
+- **Error Handling**: Graceful fallbacks with WordPress error logging when primary data sources fail
+- **Timezone Handling**: Proper Melbourne/Australia timezone handling for accurate scheduling
 
-### API Design
-- **RESTful Endpoints**: Clean API structure for fetching fire danger data
-- **JSON Response Format**: Standardized data format for frontend consumption
-- **Status Tracking**: Includes metadata like last update timestamps and data freshness indicators
+### WordPress Integration
+- **Database Tables**: Optional custom table for historical data storage
+- **WordPress Options**: Plugin settings stored in WordPress options table
+- **WordPress Security**: Proper nonce verification and capability checks for admin functions
+- **WordPress Standards**: Follows WordPress plugin development guidelines and security practices
 
 ## External Dependencies
 
 ### Core Web Scraping
 - **CFA Website**: Primary data source at `cfa.vic.gov.au` for fire danger ratings and total fire ban information
-- **Axios**: HTTP client library for making requests to external websites
-- **JSDOM**: Server-side DOM implementation for parsing HTML content
+- **WordPress HTTP API**: Built-in WordPress functions for secure HTTP requests
+- **PHP DOMDocument**: Native PHP library for HTML parsing
 
-### Server Infrastructure
-- **Express.js**: Web application framework for Node.js
-- **Node-cron**: Task scheduler for automated data collection
+### WordPress Infrastructure
+- **WordPress Core**: Minimum WordPress 5.0 requirement
+- **WordPress Transients**: Built-in caching system
+- **WordPress Cron**: Native scheduling system
+- **WordPress Admin**: Settings page integration
 
 ### Development Dependencies
-- **Node.js Runtime**: JavaScript runtime environment for server execution
+- **PHP 7.4+**: Minimum PHP version requirement
+- **WordPress Environment**: Must be installed as WordPress plugin
 
 ### Data Sources
-- **North Central Fire District**: Specific CFA region data endpoint for municipal fire ratings
-- **User-Agent Spoofing**: Mimics browser requests to avoid bot detection on CFA website
+- **Multiple Fire Districts**: Support for all CFA fire districts including North Central, South West, Northern Country, North East, and Central Fire Districts
+- **User-Agent Headers**: Mimics browser requests to avoid bot detection on CFA website
+- **Melbourne Timezone**: All scheduling and timestamps use Australia/Melbourne timezone
