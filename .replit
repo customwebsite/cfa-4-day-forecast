@@ -1,5 +1,5 @@
 entrypoint = "index.js"
-modules = ["nodejs-20"]
+modules = ["nodejs-20", "php", "python-3.11"]
 hidden = [".config", "package-lock.json"]
 
 [gitHubImport]
@@ -24,7 +24,33 @@ externalPort = 8080
 localPort = 5000
 externalPort = 80
 
+[[ports]]
+localPort = 40093
+externalPort = 3000
+
 [agent]
 expertMode = true
 
 [workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Plugin Documentation"
+
+[[workflows.workflow]]
+name = "Plugin Documentation"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python3 -m http.server 5000"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
