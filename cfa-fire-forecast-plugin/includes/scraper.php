@@ -12,6 +12,37 @@ class CFA_Fire_Forecast_Scraper {
     private $base_url = 'https://www.cfa.vic.gov.au/warnings-restrictions/fire-bans-ratings-and-restrictions/total-fire-bans-fire-danger-ratings/';
     
     /**
+     * Scrape fire danger data for multiple districts
+     */
+    public function scrape_multiple_districts($districts) {
+        if (is_string($districts)) {
+            $districts = array_map('trim', explode(',', $districts));
+        }
+        
+        $all_data = array();
+        $last_updated = current_time('mysql');
+        $next_update = $this->get_next_update_time();
+        $source_urls = array();
+        
+        foreach ($districts as $district) {
+            $district_data = $this->scrape_fire_data($district);
+            if ($district_data && !empty($district_data['data'])) {
+                $all_data[$district] = $district_data['data'];
+                $source_urls[] = $district_data['source_url'];
+            }
+        }
+        
+        return array(
+            'data' => $all_data,
+            'districts' => $districts,
+            'last_updated' => $last_updated,
+            'next_update' => $next_update,
+            'source_urls' => $source_urls,
+            'multi_district' => true
+        );
+    }
+    
+    /**
      * Scrape fire danger data for a specific district
      */
     public function scrape_fire_data($district = 'north-central-fire-district') {

@@ -337,4 +337,159 @@
         display: block;
         margin: 5px 0;
     }
+    
+    /* Multi-district table responsive */
+    .cfa-multi-district-table {
+        overflow-x: auto;
+    }
+    
+    .cfa-forecast-table th,
+    .cfa-forecast-table td {
+        padding: 8px;
+        font-size: 0.9em;
+    }
+    
+    .cfa-fire-danger-badge {
+        font-size: 0.8em;
+        padding: 6px;
+    }
+    
+    .cfa-total-fire-ban-small {
+        font-size: 0.7em;
+        padding: 3px 6px;
+    }
+    
+    .day-name {
+        font-size: 0.8em;
+    }
+    
+    .day-date {
+        font-size: 0.7em;
+    }
+}
+
+/* Multi-District Table Styles */
+.cfa-multi-district .cfa-container {
+    max-width: 1200px;
+}
+
+.cfa-multi-district-table {
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.cfa-forecast-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    font-size: 0.95em;
+}
+
+.cfa-forecast-table thead {
+    background: #003366;
+    color: white;
+}
+
+.cfa-forecast-table th {
+    padding: 15px 10px;
+    text-align: center;
+    font-weight: bold;
+    border-right: 1px solid rgba(255,255,255,0.2);
+}
+
+.cfa-forecast-table th:last-child {
+    border-right: none;
+}
+
+.cfa-forecast-table th.district-header {
+    background: #001a33;
+    min-width: 180px;
+    text-align: left;
+}
+
+.cfa-forecast-table th.today {
+    background: #004080;
+    position: relative;
+}
+
+.cfa-forecast-table th.today::after {
+    content: "TODAY";
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: #ffc107;
+    color: #000;
+    font-size: 0.7em;
+    padding: 2px 4px;
+    border-radius: 2px;
+    font-weight: bold;
+}
+
+.day-name {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.day-date {
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+.cfa-forecast-table tbody tr {
+    border-bottom: 1px solid #ddd;
+}
+
+.cfa-forecast-table tbody tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+.cfa-forecast-table tbody tr:hover {
+    background: #e9ecef;
+}
+
+.cfa-forecast-table td {
+    padding: 15px 10px;
+    text-align: center;
+    border-right: 1px solid #ddd;
+    vertical-align: middle;
+}
+
+.cfa-forecast-table td:last-child {
+    border-right: none;
+}
+
+.cfa-forecast-table td.district-name {
+    background: #f8f9fa;
+    font-weight: bold;
+    color: #003366;
+    text-align: left;
+    border-right: 2px solid #003366;
+}
+
+.cfa-forecast-table td.today {
+    background: #fff3cd;
+    border-left: 3px solid #ffc107;
+}
+
+.forecast-cell .cfa-fire-danger-badge {
+    margin-bottom: 8px;
+    font-size: 0.9em;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.cfa-total-fire-ban-small {
+    background: #dc3545;
+    color: white;
+    font-size: 0.8em;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-weight: bold;
+    display: inline-block;
+    margin-top: 5px;
 }

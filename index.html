@@ -104,6 +104,10 @@
                 <p>Shows current and upcoming fire danger ratings with color-coded badges</p>
             </div>
             <div class="feature">
+                <h3>🆕 Multi-District Table View</h3>
+                <p>NEW! Display multiple districts side-by-side in table format for easy comparison</p>
+            </div>
+            <div class="feature">
                 <h3>🔄 Automatic Updates</h3>
                 <p>Twice-daily data updates at 6 AM and 6 PM Melbourne time</p>
             </div>
@@ -118,10 +122,6 @@
             <div class="feature">
                 <h3>⚠️ Fire Ban Alerts</h3>
                 <p>Displays total fire ban status when active</p>
-            </div>
-            <div class="feature">
-                <h3>⚙️ Admin Interface</h3>
-                <p>WordPress admin settings for easy configuration</p>
             </div>
         </div>
 
@@ -154,17 +154,27 @@ cfa-fire-forecast-plugin/
 
         <h2>📝 How to Use</h2>
         <div class="shortcode">
-            <h3>Basic Usage:</h3>
+            <h3>Single District:</h3>
             <code>[cfa_fire_forecast]</code>
+            
+            <h3>Multiple Districts (NEW!):</h3>
+            <code>[cfa_fire_forecast districts="north-central-fire-district,south-west-fire-district,central-fire-district"]</code>
             
             <h3>With Options:</h3>
             <code>[cfa_fire_forecast district="north-central-fire-district" show_scale="true" auto_refresh="true"]</code>
             
             <h3>Available Options:</h3>
             <ul>
-                <li><strong>district</strong> - Fire district to display (e.g., "north-central-fire-district")</li>
+                <li><strong>district</strong> - Single fire district to display (e.g., "north-central-fire-district")</li>
+                <li><strong>districts</strong> - Multiple districts separated by commas (NEW FEATURE!)</li>
                 <li><strong>show_scale</strong> - Show fire danger ratings scale (true/false)</li>
                 <li><strong>auto_refresh</strong> - Enable refresh button (true/false)</li>
+            </ul>
+            
+            <h3>📊 Multi-District Examples:</h3>
+            <ul>
+                <li><code>[cfa_fire_forecast districts="north-central-fire-district,south-west-fire-district"]</code> - Compare 2 districts</li>
+                <li><code>[cfa_fire_forecast districts="north-central-fire-district,south-west-fire-district,central-fire-district,north-east-fire-district"]</code> - Compare 4 districts</li>
             </ul>
         </div>
 

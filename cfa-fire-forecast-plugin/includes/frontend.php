@@ -48,39 +48,196 @@ class CFA_Fire_Forecast_Frontend {
     public function display_forecast($atts) {
         $atts = shortcode_atts(array(
             'district' => 'north-central-fire-district',
+            'districts' => '',
             'show_scale' => 'true',
             'auto_refresh' => 'true'
         ), $atts);
         
-        $data = $this->get_cached_data($atts['district']);
+        // Determine if multiple districts requested
+        $districts = !empty($atts['districts']) ? $atts['districts'] : $atts['district'];
+        $is_multi_district = strpos($districts, ',') !== false;
+        
+        $data = $this->get_cached_data($districts, $is_multi_district);
         
         if (!$data || empty($data['data'])) {
             return '<div class="cfa-fire-forecast-error">Unable to load fire danger data. Please try again later.</div>';
         }
         
         ob_start();
-        $this->render_forecast($data, $atts);
+        if ($is_multi_district) {
+            $this->render_multi_district_forecast($data, $atts);
+        } else {
+            $this->render_forecast($data, $atts);
+        }
         return ob_get_clean();
     }
     
     /**
      * Get cached fire data
      */
-    private function get_cached_data($district) {
-        $cache_key = 'cfa_fire_forecast_data_' . $district;
-        $data = get_transient($cache_key);
-        
-        if (false === $data) {
-            // Load scraper and fetch fresh data
-            require_once CFA_FIRE_FORECAST_PLUGIN_DIR . 'includes/scraper.php';
-            $scraper = new CFA_Fire_Forecast_Scraper();
-            $data = $scraper->scrape_fire_data($district);
+    private function get_cached_data($districts, $is_multi_district = false) {
+        if ($is_multi_district) {
+            $cache_key = 'cfa_fire_forecast_multi_' . md5($districts);
+            $data = get_transient($cache_key);
             
-            // Cache for 1 hour
-            set_transient($cache_key, $data, HOUR_IN_SECONDS);
+            if (false === $data) {
+                // Load scraper and fetch fresh data for multiple districts
+                require_once CFA_FIRE_FORECAST_PLUGIN_DIR . 'includes/scraper.php';
+                $scraper = new CFA_Fire_Forecast_Scraper();
+                $data = $scraper->scrape_multiple_districts($districts);
+                
+                // Cache for 1 hour
+                set_transient($cache_key, $data, HOUR_IN_SECONDS);
+            }
+        } else {
+            $cache_key = 'cfa_fire_forecast_data_' . $districts;
+            $data = get_transient($cache_key);
+            
+            if (false === $data) {
+                // Load scraper and fetch fresh data
+                require_once CFA_FIRE_FORECAST_PLUGIN_DIR . 'includes/scraper.php';
+                $scraper = new CFA_Fire_Forecast_Scraper();
+                $data = $scraper->scrape_fire_data($districts);
+                
+                // Cache for 1 hour
+                set_transient($cache_key, $data, HOUR_IN_SECONDS);
+            }
         }
         
         return $data;
+    }
+    
+    /**
+     * Render multi-district forecast HTML as table
+     */
+    private function render_multi_district_forecast($data, $atts) {
+        $districts = $data['districts'];
+        $district_data = $data['data'];
+        ?>
+        <div class="cfa-fire-forecast-container cfa-multi-district" id="cfa-fire-forecast" data-districts="<?php echo esc_attr(implode(',', $districts)); ?>" data-multi="true">
+            <div class="cfa-header">
+                <div class="cfa-header-content">
+                    <h2>Multi-District Fire Danger Forecast</h2>
+                    <p>Fire Danger Ratings and Total Fire Bans - Victoria, Australia</p>
+                </div>
+            </div>
+            
+            <div class="cfa-container">
+                <div class="cfa-info-links">
+                    <h3>Important Information:</h3>
+                    <a href="https://www.cfa.vic.gov.au/warnings-restrictions/fire-bans-ratings-and-restrictions/about-fire-danger-ratings" target="_blank">Fire Danger Ratings</a>
+                    <a href="https://www.cfa.vic.gov.au/warnings-restrictions/fire-bans-ratings-and-restrictions/about-total-fire-bans" target="_blank">Total Fire Bans</a>
+                    <a href="https://www.cfa.vic.gov.au/warnings-restrictions/total-fire-bans-and-ratings/can-i-or-cant-i" target="_blank">What you can and can't do</a>
+                </div>
+
+                <div class="cfa-status-bar">
+                    <div class="cfa-status-item">
+                        <div class="cfa-status-icon online"></div>
+                        <span>Data loaded successfully</span>
+                    </div>
+                    <div class="cfa-status-item">
+                        <span>Last updated: <?php echo esc_html(date('j F Y, g:i A', strtotime($data['last_updated'] . ' Australia/Melbourne'))); ?> (Melbourne time)</span>
+                    </div>
+                    <?php if ($atts['auto_refresh'] === 'true'): ?>
+                    <div class="cfa-status-item">
+                        <button class="cfa-refresh-btn" onclick="cfaRefreshData()">Refresh Now</button>
+                    </div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="cfa-forecast-section">
+                    <div class="cfa-forecast-header">
+                        4 Day Fire Danger Forecast - <?php echo count($districts); ?> Districts
+                    </div>
+                    <div class="cfa-forecast-content">
+                        <div class="cfa-multi-district-table">
+                            <table class="cfa-forecast-table">
+                                <thead>
+                                    <tr>
+                                        <th class="district-header">District</th>
+                                        <?php 
+                                        // Get dates from first district
+                                        $first_district = reset($district_data);
+                                        if ($first_district):
+                                            foreach ($first_district as $index => $day): ?>
+                                                <th class="day-header <?php echo $index === 0 ? 'today' : ''; ?>">
+                                                    <div class="day-name"><?php echo esc_html($day['day']); ?></div>
+                                                    <div class="day-date"><?php echo esc_html($day['date']); ?></div>
+                                                </th>
+                                            <?php endforeach;
+                                        endif; ?>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($districts as $district): 
+                                        if (isset($district_data[$district])): ?>
+                                        <tr class="district-row">
+                                            <td class="district-name">
+                                                <?php echo esc_html(ucwords(str_replace('-', ' ', $district))); ?>
+                                            </td>
+                                            <?php foreach ($district_data[$district] as $index => $day): ?>
+                                            <td class="forecast-cell <?php echo $index === 0 ? 'today' : ''; ?>">
+                                                <div class="cfa-fire-danger-badge rating-<?php echo esc_attr($this->get_rating_class($day['fire_danger_rating'])); ?>">
+                                                    <?php echo esc_html($day['fire_danger_rating']); ?>
+                                                </div>
+                                                <?php if ($day['total_fire_ban']): ?>
+                                                <div class="cfa-total-fire-ban-small">🔴 TFB</div>
+                                                <?php endif; ?>
+                                            </td>
+                                            <?php endforeach; ?>
+                                        </tr>
+                                        <?php endif;
+                                    endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <?php if ($atts['show_scale'] === 'true'): ?>
+                <div class="cfa-fire-danger-scale">
+                    <h3>Fire Danger Ratings Scale</h3>
+                    <p>Understanding what each fire danger rating means and what you should do:</p>
+                    <img src="https://www.cfa.vic.gov.au/images/UserUploadedImages/11/map-bar.png" 
+                         alt="Fire Danger Ratings Scale"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div style="display:none;" class="cfa-scale-fallback">
+                        <p><strong>Fire Danger Rating Scale:</strong></p>
+                        <p>🟢 <strong>Low-Moderate:</strong> Fire can start and spread. Be alert.</p>
+                        <p>🟡 <strong>Moderate:</strong> Fires can spread. Be prepared and stay alert.</p>
+                        <p>🟠 <strong>High:</strong> Fires will spread rapidly and be difficult to control. Be ready to act.</p>
+                        <p>🔴 <strong>Extreme:</strong> Fires will spread rapidly and be extremely difficult to control. Take action now.</p>
+                        <p>🟣 <strong>Catastrophic:</strong> If a fire starts it will be uncontrollable, unpredictable and fast moving. Leave bushfire risk areas immediately.</p>
+                    </div>
+                    <p><a href="https://www.cfa.vic.gov.au/warnings-restrictions/fire-bans-ratings-and-restrictions/about-fire-danger-ratings" target="_blank">Learn more about Fire Danger Ratings</a></p>
+                </div>
+                <?php endif; ?>
+
+                <div class="cfa-emergency-notice">
+                    ⚠️ <strong>EMERGENCY:</strong> In case of fire emergency, call <strong>000</strong> immediately
+                </div>
+            </div>
+
+            <div class="cfa-source-footer">
+                <p><strong>Data Sources:</strong> 
+                <?php 
+                $base_url = 'https://www.cfa.vic.gov.au/warnings-restrictions/fire-bans-ratings-and-restrictions/total-fire-bans-fire-danger-ratings/';
+                $source_links = array();
+                foreach ($districts as $district) {
+                    if (isset($district_data[$district])) {
+                        $district_url = $base_url . $district;
+                        $source_links[] = '<a href="' . esc_url($district_url) . '" target="_blank">' . 
+                                         esc_html(ucwords(str_replace('-', ' ', $district))) . '</a>';
+                    }
+                }
+                echo implode(', ', $source_links);
+                ?>
+                </p>
+                <p>This information is for general reference only. Always check the official CFA website for the most current fire danger ratings and restrictions.</p>
+                <p><small>Data automatically updated twice daily at 6 AM and 6 PM (Melbourne time)</small></p>
+            </div>
+        </div>
+        <?php
     }
     
     /**
@@ -200,11 +357,17 @@ class CFA_Fire_Forecast_Frontend {
     public function ajax_refresh_data() {
         check_ajax_referer('cfa_fire_forecast_nonce', 'nonce');
         
-        $district = sanitize_text_field($_POST['district'] ?? 'north-central-fire-district');
+        $districts = sanitize_text_field($_POST['districts'] ?? 'north-central-fire-district');
+        $is_multi_district = strpos($districts, ',') !== false;
         
         // Clear cache and fetch fresh data
-        delete_transient('cfa_fire_forecast_data_' . $district);
-        $data = $this->get_cached_data($district);
+        if ($is_multi_district) {
+            delete_transient('cfa_fire_forecast_multi_' . md5($districts));
+        } else {
+            delete_transient('cfa_fire_forecast_data_' . $districts);
+        }
+        
+        $data = $this->get_cached_data($districts, $is_multi_district);
         
         wp_send_json_success($data);
     }

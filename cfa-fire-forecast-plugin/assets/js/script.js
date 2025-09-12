@@ -28,8 +28,8 @@
         $statusIcon.removeClass('online error').addClass('loading');
         $statusText.text('Fetching latest fire data...');
 
-        // Get district from container data attribute or default
-        var district = $container.data('district') || 'north-central-fire-district';
+        // Get districts from container data attribute or default
+        var districts = $container.data('districts') || $container.data('district') || 'north-central-fire-district';
 
         // Make AJAX request
         $.ajax({
@@ -37,7 +37,7 @@
             type: 'POST',
             data: {
                 action: 'refresh_fire_data',
-                district: district,
+                districts: districts,
                 nonce: cfaAjax.nonce
             },
             success: function(response) {
@@ -64,6 +64,25 @@
 
     // Update forecast display with new data
     function updateForecastDisplay(data) {
+        // Check if this is multi-district data
+        if (data.multi_district) {
+            updateMultiDistrictDisplay(data);
+        } else {
+            updateSingleDistrictDisplay(data);
+        }
+
+        // Update last updated time
+        if (data.last_updated) {
+            var lastUpdated = new Date(data.last_updated + ' Australia/Melbourne');
+            var $statusBar = $('.cfa-status-bar');
+            $statusBar.find('.cfa-status-item:contains("Last updated")').find('span').text(
+                'Last updated: ' + formatDate(lastUpdated) + ' (Melbourne time)'
+            );
+        }
+    }
+
+    // Update single district display
+    function updateSingleDistrictDisplay(data) {
         var $grid = $('.cfa-forecast-grid');
         if (!$grid.length || !data.data) return;
 
@@ -89,15 +108,41 @@
 
             $grid.append(cardHtml);
         });
+    }
 
-        // Update last updated time
-        if (data.last_updated) {
-            var lastUpdated = new Date(data.last_updated + ' Australia/Melbourne');
-            var $statusBar = $('.cfa-status-bar');
-            $statusBar.find('.cfa-status-item:contains("Last updated")').find('span').text(
-                'Last updated: ' + formatDate(lastUpdated) + ' (Melbourne time)'
-            );
-        }
+    // Update multi-district table display
+    function updateMultiDistrictDisplay(data) {
+        var $tbody = $('.cfa-forecast-table tbody');
+        if (!$tbody.length || !data.data) return;
+
+        $tbody.empty();
+        
+        $.each(data.districts, function(districtIndex, district) {
+            if (!data.data[district]) return;
+            
+            // Format district name
+            var districtName = district.replace(/-/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
+            
+            var rowHtml = '<tr class="district-row">' +
+                '<td class="district-name">' + escapeHtml(districtName) + '</td>';
+            
+            $.each(data.data[district], function(dayIndex, day) {
+                var isToday = dayIndex === 0;
+                var ratingClass = getRatingClass(day.fire_danger_rating);
+                var totalFireBanHtml = day.total_fire_ban ? 
+                    '<div class="cfa-total-fire-ban-small">🔴 TFB</div>' : '';
+                
+                rowHtml += '<td class="forecast-cell ' + (isToday ? 'today' : '') + '">' +
+                    '<div class="cfa-fire-danger-badge rating-' + ratingClass + '">' +
+                        escapeHtml(day.fire_danger_rating) +
+                    '</div>' +
+                    totalFireBanHtml +
+                    '</td>';
+            });
+            
+            rowHtml += '</tr>';
+            $tbody.append(rowHtml);
+        });
     }
 
     // Show error message
@@ -126,7 +171,7 @@
     // Escape HTML to prevent XSS
     function escapeHtml(text) {
         var div = document.createElement('div');
-        div.textContent = text;
+        div.textContent = String(text);
         return div.innerHTML;
     }
 
