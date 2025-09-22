@@ -1,5 +1,5 @@
 entrypoint = "index.js"
-modules = ["nodejs-20", "php", "python-3.11"]
+modules = ["nodejs-20", "php", "python-3.11", "php-8.2"]
 hidden = [".config", "package-lock.json"]
 
 [gitHubImport]
@@ -25,7 +25,7 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 45021
+localPort = 34709
 externalPort = 3000
 
 [agent]
@@ -41,15 +41,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Plugin Documentation"
+args = "CFA Data Test"
 
 [[workflows.workflow]]
-name = "Plugin Documentation"
+name = "CFA Data Test"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python3 -m http.server 5000"
+args = "php -S 0.0.0.0:5000 test-cfa-data.php"
 waitForPort = 5000
 
 [workflows.workflow.metadata]
