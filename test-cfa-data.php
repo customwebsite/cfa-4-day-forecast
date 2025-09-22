@@ -367,7 +367,7 @@ class CFA_Fire_Forecast_Test_Scraper {
         .fire-ban { background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.8em; }
         table { border-collapse: collapse; width: 100%; margin: 10px 0; }
         th, td { padding: 12px; text-align: left; border: 1px solid #ddd; }
-        th { background: #003366; color: white; }
+        th { background: #004080; color: white; }
         tr:nth-child(even) { background: #f8f9fa; }
         .today-column { background: #004080 !important; }
         .today-cell { background: #fff3cd !important; }
