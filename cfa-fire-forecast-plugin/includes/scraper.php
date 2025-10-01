@@ -118,36 +118,107 @@ class CFA_Fire_Forecast_Scraper {
      * Extract current fire danger rating from HTML
      */
     private function extract_current_rating($dom, $html) {
-        // Try to find .fdrRating element
         $xpath = new DOMXPath($dom);
-        $fdr_elements = $xpath->query("//*[contains(@class, 'fdrRating')]");
         
+        // Strategy 1: Look for rating in .fdrRating and its siblings/children
+        $fdr_elements = $xpath->query("//*[contains(@class, 'fdrRating')]");
         if ($fdr_elements->length > 0) {
-            $rating_text = $fdr_elements->item(0)->textContent;
+            $fdr_element = $fdr_elements->item(0);
+            $rating_text = $fdr_element->textContent;
             
-            // Extract rating from text
+            // Check the element itself
             if (preg_match('/(NO RATING|LOW-MODERATE|MODERATE|HIGH|EXTREME|CATASTROPHIC)/i', $rating_text, $matches)) {
                 return strtoupper($matches[1]);
             }
+            
+            // Check next sibling
+            $next = $fdr_element->nextSibling;
+            while ($next) {
+                if ($next->nodeType === XML_ELEMENT_NODE) {
+                    $sibling_text = $next->textContent;
+                    if (preg_match('/(NO RATING|LOW-MODERATE|MODERATE|HIGH|EXTREME|CATASTROPHIC)/i', $sibling_text, $matches)) {
+                        return strtoupper($matches[1]);
+                    }
+                }
+                $next = $next->nextSibling;
+            }
+            
+            // Check parent's children
+            if ($fdr_element->parentNode) {
+                foreach ($fdr_element->parentNode->childNodes as $child) {
+                    if ($child->nodeType === XML_ELEMENT_NODE) {
+                        $child_text = $child->textContent;
+                        if (preg_match('/(NO RATING|LOW-MODERATE|MODERATE|HIGH|EXTREME|CATASTROPHIC)/i', $child_text, $matches)) {
+                            return strtoupper($matches[1]);
+                        }
+                    }
+                }
+            }
         }
         
-        // Fallback: check for NO RATING in content
-        if (stripos($html, 'NO RATING') !== false || stripos($html, 'no-rating.gif') !== false) {
+        // Strategy 2: Look for specific rating class names or data attributes
+        $rating_class_patterns = array(
+            'CATASTROPHIC' => '/catastrophic/i',
+            'EXTREME' => '/extreme/i', 
+            'HIGH' => '/high/i',
+            'MODERATE' => '/moderate/i',
+            'LOW-MODERATE' => '/low[-_\s]*moderate/i'
+        );
+        
+        foreach ($rating_class_patterns as $rating => $pattern) {
+            $elements = $xpath->query("//*[contains(@class, 'fdr') or contains(@class, 'rating') or contains(@class, 'danger')]");
+            foreach ($elements as $element) {
+                $class = $element->getAttribute('class');
+                $text = $element->textContent;
+                if (preg_match($pattern, $class . ' ' . $text)) {
+                    return $rating;
+                }
+            }
+        }
+        
+        // Strategy 3: Check for "no rating" image
+        if (stripos($html, 'no-rating.gif') !== false || stripos($html, 'no-rating.png') !== false) {
             return 'NO RATING';
         }
         
-        // Fallback: pattern matching
+        // Strategy 4: Priority order for pattern matching (most specific first)
         $rating_patterns = array(
-            'CATASTROPHIC' => '/catastrophic/i',
-            'EXTREME' => '/extreme/i',
-            'HIGH' => '/\bhigh\b/i',
-            'MODERATE' => '/\bmoderate\b/i',
-            'LOW-MODERATE' => '/low[\s-]*moderate/i'
+            'CATASTROPHIC' => '/\bcatastrophic\s+fire\s+danger/i',
+            'EXTREME' => '/\bextreme\s+fire\s+danger/i',
+            'HIGH' => '/\bhigh\s+fire\s+danger/i',
+            'MODERATE' => '/\bmoderate\s+fire\s+danger/i',
+            'LOW-MODERATE' => '/\blow[-\s]+moderate\s+fire\s+danger/i'
         );
         
         foreach ($rating_patterns as $rating => $pattern) {
             if (preg_match($pattern, $html)) {
                 return $rating;
+            }
+        }
+        
+        // Strategy 5: Fallback to single word matching (check for LOW-MODERATE first)
+        if (preg_match('/\blow[-\s]+moderate\b/i', $html)) {
+            return 'LOW-MODERATE';
+        }
+        
+        $simple_patterns = array(
+            'CATASTROPHIC' => '/\bcatastrophic\b/i',
+            'EXTREME' => '/\bextreme\b/i',
+            'MODERATE' => '/\bmoderate\b/i',
+            'HIGH' => '/\bhigh\b/i'
+        );
+        
+        foreach ($simple_patterns as $rating => $pattern) {
+            if (preg_match($pattern, $html)) {
+                return $rating;
+            }
+        }
+        
+        // Last resort: case-insensitive search
+        $all_ratings = array('CATASTROPHIC', 'EXTREME', 'HIGH', 'MODERATE', 'LOW-MODERATE', 'LOW MODERATE');
+        foreach ($all_ratings as $rating) {
+            if (stripos($html, $rating) !== false) {
+                return strtoupper(str_replace(' ', '-', $rating));
             }
         }
         
