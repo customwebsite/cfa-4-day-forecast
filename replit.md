@@ -62,3 +62,54 @@ Preferred communication style: Simple, everyday language.
 - **Multiple Fire Districts**: Support for all CFA fire districts including North Central, South West, Northern Country, North East, and Central Fire Districts
 - **User-Agent Headers**: Mimics browser requests to avoid bot detection on CFA website
 - **Melbourne Timezone**: All scheduling and timestamps use Australia/Melbourne timezone
+
+## CFA API Discovery (October 2025)
+
+### Technical Findings
+Through reverse-engineering the CFA website JavaScript, we discovered their internal API endpoint:
+
+**API Endpoint:** `POST https://www.cfa.vic.gov.au/api/cfa/tfbfdr/district`
+
+**Request Format:**
+```json
+{
+  "IssueDate": "2025-10-01 00:00:00",
+  "DistrictName": "North Central",
+  "AdminEmailAddress": "digitalworkflow@cfa.vic.gov.au"
+}
+```
+
+**Key Discovery Details:**
+- API returns accurate fire danger ratings (confirmed: "MODERATE" for North Central)
+- District names must use proper case format (not URL slugs)
+- Date format: `YYYY-MM-DD HH:MM:SS`
+- Response includes 4-day forecast data, TFB status, and municipality restrictions
+
+### Critical Limitation: Access Blocked
+- **Local requests:** ✅ Work correctly (HTTP 200)
+- **Server requests:** ❌ Blocked with HTTP 403 Forbidden
+- **Root cause:** CFA uses IP-based blocking or bot detection
+- **Impact:** Cannot use API directly from WordPress servers
+
+### Alternative Solutions Required
+1. **Headless browser microservice** - Execute JavaScript in real browser context to bypass blocking
+2. **Official API access** - Contact CFA for IP whitelisting or official API credentials
+3. **Alternative data source** - Bureau of Meteorology (different district mapping)
+
+### Current Status
+- API fully documented in `CFA_API_DISCOVERY.md`
+- HTML scraping approach fails (ratings loaded via JavaScript)
+- Direct API approach blocked (403 Forbidden from servers)
+- Awaiting solution: Official CFA access or headless browser service
+
+### District Name Mapping
+| URL Slug | API District Name |
+|----------|------------------|
+| central-fire-district | Central |
+| mallee-fire-district | Mallee |
+| north-central-fire-district | North Central |
+| north-east-fire-district | North East |
+| northern-country-fire-district | Northern Country |
+| south-west-fire-district | South West |
+| west-and-south-gippsland-fire-district | West and South Gippsland |
+| wimmera-fire-district | Wimmera |
