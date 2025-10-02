@@ -1,6 +1,8 @@
 <?php
 /**
- * CFA Fire Forecast Data Scraper
+ * CFA Fire Forecast RSS Feed Scraper
+ * 
+ * Uses official CFA RSS feeds to fetch fire danger ratings
  */
 
 if (!defined('ABSPATH')) {
@@ -9,7 +11,20 @@ if (!defined('ABSPATH')) {
 
 class CFA_Fire_Forecast_Scraper {
     
-    private $base_url = 'https://www.cfa.vic.gov.au/warnings-restrictions/fire-bans-ratings-and-restrictions/total-fire-bans-fire-danger-ratings/';
+    private $rss_base_url = 'https://www.cfa.vic.gov.au/cfa/rssfeed/';
+    
+    // Map district slugs to RSS feed filenames
+    private $rss_feed_map = array(
+        'central-fire-district' => 'central-firedistrict_rss.xml',
+        'mallee-fire-district' => 'mallee-firedistrict_rss.xml',
+        'north-central-fire-district' => 'northcentral-firedistrict_rss.xml',
+        'north-east-fire-district' => 'northeast-firedistrict_rss.xml',
+        'northern-country-fire-district' => 'northerncountry-firedistrict_rss.xml',
+        'south-west-fire-district' => 'southwest-firedistrict_rss.xml',
+        'west-and-south-gippsland-fire-district' => 'westandsouthgippsland-firedistrict_rss.xml',
+        'wimmera-fire-district' => 'wimmera-firedistrict_rss.xml',
+        'east-gippsland-fire-district' => 'eastgippsland-firedistrict_rss.xml'
+    );
     
     /**
      * Scrape fire danger data for multiple districts
@@ -43,182 +58,133 @@ class CFA_Fire_Forecast_Scraper {
     }
     
     /**
-     * Scrape fire danger data for a specific district
+     * Scrape fire danger data from RSS feed for a specific district
      */
     public function scrape_fire_data($district = 'north-central-fire-district') {
-        $url = $this->base_url . $district;
+        // Get RSS feed URL for this district
+        if (!isset($this->rss_feed_map[$district])) {
+            error_log('CFA Fire Forecast: Unknown district - ' . $district);
+            return $this->get_fallback_data($district);
+        }
         
-        // Use WordPress HTTP API
-        $response = wp_remote_get($url, array(
+        $rss_url = $this->rss_base_url . $this->rss_feed_map[$district];
+        
+        // Fetch RSS feed
+        $response = wp_remote_get($rss_url, array(
             'timeout' => 30,
-            'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+            'user-agent' => 'Mozilla/5.0 (compatible; CFA-Fire-Forecast-WordPress-Plugin/1.0)'
         ));
         
         if (is_wp_error($response)) {
-            error_log('CFA Fire Forecast: Error fetching data - ' . $response->get_error_message());
-            return $this->get_fallback_data();
+            error_log('CFA Fire Forecast: Error fetching RSS - ' . $response->get_error_message());
+            return $this->get_fallback_data($district);
         }
         
-        $body = wp_remote_retrieve_body($response);
-        if (empty($body)) {
-            error_log('CFA Fire Forecast: Empty response body');
-            return $this->get_fallback_data();
+        $xml_content = wp_remote_retrieve_body($response);
+        if (empty($xml_content)) {
+            error_log('CFA Fire Forecast: Empty RSS response');
+            return $this->get_fallback_data($district);
         }
         
-        return $this->parse_fire_data($body, $district);
+        return $this->parse_rss_feed($xml_content, $district);
     }
     
     /**
-     * Parse HTML content to extract fire danger ratings
+     * Parse RSS feed XML to extract fire danger data
      */
-    private function parse_fire_data($html, $district) {
-        // Use DOMDocument to parse HTML
-        $dom = new DOMDocument();
-        @$dom->loadHTML($html);
+    private function parse_rss_feed($xml_content, $district) {
+        libxml_use_internal_errors(true);
+        $xml = simplexml_load_string($xml_content);
+        
+        if ($xml === false) {
+            error_log('CFA Fire Forecast: Failed to parse RSS XML');
+            return $this->get_fallback_data($district);
+        }
         
         $forecast_data = array();
-        $current_date = new DateTime('now', new DateTimeZone('Australia/Melbourne'));
+        $current_rating = 'NO RATING';
+        $total_fire_ban = false;
         
-        // Generate 4-day forecast
-        for ($i = 0; $i < 4; $i++) {
-            $forecast_date = clone $current_date;
-            $forecast_date->add(new DateInterval('P' . $i . 'D'));
+        // Parse RSS items (first 4 are the 4-day forecast)
+        $items = $xml->channel->item;
+        $day_count = 0;
+        
+        foreach ($items as $item) {
+            // Skip municipality restrictions item
+            $title = (string)$item->title;
+            if (stripos($title, 'municipality') !== false || stripos($title, 'restrictions') !== false) {
+                continue;
+            }
             
-            $day_label = $i === 0 ? 'Today' : ($i === 1 ? 'Tomorrow' : $forecast_date->format('l'));
-            $date_string = $forecast_date->format('D, j F Y');
+            // Only get first 4 days
+            if ($day_count >= 4) {
+                break;
+            }
             
-            $fire_danger_rating = 'NO RATING';
-            $total_fire_ban = false;
+            $description = (string)$item->description;
             
-            // For today, try to extract actual rating
-            if ($i === 0) {
-                $fire_danger_rating = $this->extract_current_rating($dom, $html);
-                $total_fire_ban = $this->extract_fire_ban_status($html);
+            // Extract fire danger rating
+            $rating = $this->extract_rating_from_description($description);
+            
+            // Extract total fire ban status
+            $tfb = $this->extract_tfb_status($description);
+            
+            // Determine day name
+            if ($day_count === 0) {
+                $day_name = 'Today';
+                $current_rating = $rating;
+                $total_fire_ban = $tfb;
+            } elseif ($day_count === 1) {
+                $day_name = 'Tomorrow';
+            } else {
+                $day_name = $title; // Use title like "Saturday, 04 October 2025"
             }
             
             $forecast_data[] = array(
-                'day' => $day_label,
-                'date' => $date_string,
-                'fire_danger_rating' => $fire_danger_rating,
-                'total_fire_ban' => $total_fire_ban,
-                'district' => ucwords(str_replace('-', ' ', $district)),
-                'forecast_date' => $forecast_date->format('Y-m-d')
+                'day' => $day_name,
+                'date' => $this->parse_date_from_title($title),
+                'rating' => $rating,
+                'total_fire_ban' => $tfb
+            );
+            
+            $day_count++;
+        }
+        
+        // If we didn't get 4 days, pad with NO RATING
+        while (count($forecast_data) < 4) {
+            $forecast_data[] = array(
+                'day' => 'Day ' . (count($forecast_data) + 1),
+                'date' => date('Y-m-d', strtotime('+' . count($forecast_data) . ' days')),
+                'rating' => 'NO RATING',
+                'total_fire_ban' => false
             );
         }
         
         return array(
-            'data' => $forecast_data,
-            'last_updated' => current_time('mysql'),
-            'next_update' => $this->get_next_update_time(),
-            'source_url' => $this->base_url . $district
+            'data' => array(
+                'current_rating' => $current_rating,
+                'total_fire_ban' => $total_fire_ban,
+                'forecast' => $forecast_data,
+                'last_updated' => current_time('mysql')
+            ),
+            'source_url' => $this->rss_base_url . $this->rss_feed_map[$district]
         );
     }
     
     /**
-     * Extract current fire danger rating from HTML
+     * Extract fire danger rating from RSS description
      */
-    private function extract_current_rating($dom, $html) {
-        $xpath = new DOMXPath($dom);
-        
-        // Strategy 1: Look for rating in .fdrRating and its siblings/children
-        $fdr_elements = $xpath->query("//*[contains(@class, 'fdrRating')]");
-        if ($fdr_elements->length > 0) {
-            $fdr_element = $fdr_elements->item(0);
-            $rating_text = $fdr_element->textContent;
-            
-            // Check the element itself
-            if (preg_match('/(NO RATING|LOW-MODERATE|MODERATE|HIGH|EXTREME|CATASTROPHIC)/i', $rating_text, $matches)) {
-                return strtoupper($matches[1]);
-            }
-            
-            // Check next sibling
-            $next = $fdr_element->nextSibling;
-            while ($next) {
-                if ($next->nodeType === XML_ELEMENT_NODE) {
-                    $sibling_text = $next->textContent;
-                    if (preg_match('/(NO RATING|LOW-MODERATE|MODERATE|HIGH|EXTREME|CATASTROPHIC)/i', $sibling_text, $matches)) {
-                        return strtoupper($matches[1]);
-                    }
-                }
-                $next = $next->nextSibling;
-            }
-            
-            // Check parent's children
-            if ($fdr_element->parentNode) {
-                foreach ($fdr_element->parentNode->childNodes as $child) {
-                    if ($child->nodeType === XML_ELEMENT_NODE) {
-                        $child_text = $child->textContent;
-                        if (preg_match('/(NO RATING|LOW-MODERATE|MODERATE|HIGH|EXTREME|CATASTROPHIC)/i', $child_text, $matches)) {
-                            return strtoupper($matches[1]);
-                        }
-                    }
-                }
-            }
+    private function extract_rating_from_description($description) {
+        // Pattern: "North Central: MODERATE" or similar
+        if (preg_match('/:\s*(CATASTROPHIC|EXTREME|HIGH|MODERATE|LOW-MODERATE|NO RATING)/i', $description, $matches)) {
+            return strtoupper($matches[1]);
         }
         
-        // Strategy 2: Look for specific rating class names or data attributes
-        $rating_class_patterns = array(
-            'CATASTROPHIC' => '/catastrophic/i',
-            'EXTREME' => '/extreme/i', 
-            'HIGH' => '/high/i',
-            'MODERATE' => '/moderate/i',
-            'LOW-MODERATE' => '/low[-_\s]*moderate/i'
-        );
-        
-        foreach ($rating_class_patterns as $rating => $pattern) {
-            $elements = $xpath->query("//*[contains(@class, 'fdr') or contains(@class, 'rating') or contains(@class, 'danger')]");
-            foreach ($elements as $element) {
-                $class = $element->getAttribute('class');
-                $text = $element->textContent;
-                if (preg_match($pattern, $class . ' ' . $text)) {
-                    return $rating;
-                }
-            }
-        }
-        
-        // Strategy 3: Check for "no rating" image
-        if (stripos($html, 'no-rating.gif') !== false || stripos($html, 'no-rating.png') !== false) {
-            return 'NO RATING';
-        }
-        
-        // Strategy 4: Priority order for pattern matching (most specific first)
-        $rating_patterns = array(
-            'CATASTROPHIC' => '/\bcatastrophic\s+fire\s+danger/i',
-            'EXTREME' => '/\bextreme\s+fire\s+danger/i',
-            'HIGH' => '/\bhigh\s+fire\s+danger/i',
-            'MODERATE' => '/\bmoderate\s+fire\s+danger/i',
-            'LOW-MODERATE' => '/\blow[-\s]+moderate\s+fire\s+danger/i'
-        );
-        
-        foreach ($rating_patterns as $rating => $pattern) {
-            if (preg_match($pattern, $html)) {
+        // Fallback: look for rating words anywhere
+        $ratings = array('CATASTROPHIC', 'EXTREME', 'HIGH', 'MODERATE', 'LOW-MODERATE');
+        foreach ($ratings as $rating) {
+            if (stripos($description, $rating) !== false) {
                 return $rating;
-            }
-        }
-        
-        // Strategy 5: Fallback to single word matching (check for LOW-MODERATE first)
-        if (preg_match('/\blow[-\s]+moderate\b/i', $html)) {
-            return 'LOW-MODERATE';
-        }
-        
-        $simple_patterns = array(
-            'CATASTROPHIC' => '/\bcatastrophic\b/i',
-            'EXTREME' => '/\bextreme\b/i',
-            'MODERATE' => '/\bmoderate\b/i',
-            'HIGH' => '/\bhigh\b/i'
-        );
-        
-        foreach ($simple_patterns as $rating => $pattern) {
-            if (preg_match($pattern, $html)) {
-                return $rating;
-            }
-        }
-        
-        // Last resort: case-insensitive search
-        $all_ratings = array('CATASTROPHIC', 'EXTREME', 'HIGH', 'MODERATE', 'LOW-MODERATE', 'LOW MODERATE');
-        foreach ($all_ratings as $rating) {
-            if (stripos($html, $rating) !== false) {
-                return strtoupper(str_replace(' ', '-', $rating));
             }
         }
         
@@ -226,70 +192,77 @@ class CFA_Fire_Forecast_Scraper {
     }
     
     /**
-     * Extract total fire ban status
+     * Extract Total Fire Ban status from description
      */
-    private function extract_fire_ban_status($html) {
-        if (stripos($html, 'total fire ban') !== false && stripos($html, 'in force') !== false) {
-            return true;
+    private function extract_tfb_status($description) {
+        // Check for "is not currently a day of Total Fire Ban"
+        if (stripos($description, 'is not currently a day of Total Fire Ban') !== false) {
+            return false;
         }
         
-        if (stripos($html, 'not currently a day of total fire ban') !== false) {
-            return false;
+        // Check for positive indicators
+        if (stripos($description, 'Total Fire Ban in force') !== false ||
+            stripos($description, 'is a day of Total Fire Ban') !== false ||
+            stripos($description, 'Total Fire Ban declared') !== false) {
+            return true;
         }
         
         return false;
     }
     
     /**
-     * Get next update time (6 AM or 6 PM Melbourne time)
+     * Parse date from RSS item title
+     */
+    private function parse_date_from_title($title) {
+        // Try to parse date from title like "Thursday, 02 October 2025"
+        $timestamp = strtotime($title);
+        if ($timestamp !== false) {
+            return date('Y-m-d', $timestamp);
+        }
+        
+        // Fallback to current date
+        return date('Y-m-d');
+    }
+    
+    /**
+     * Calculate next update time (6 AM or 6 PM Melbourne time)
      */
     private function get_next_update_time() {
-        $now = new DateTime('now', new DateTimeZone('Australia/Melbourne'));
-        $next = clone $now;
+        $melbourne_tz = new DateTimeZone('Australia/Melbourne');
+        $now = new DateTime('now', $melbourne_tz);
+        $next_update = clone $now;
         
         $current_hour = (int)$now->format('H');
         
         if ($current_hour < 6) {
-            $next->setTime(6, 0, 0);
+            $next_update->setTime(6, 0, 0);
         } elseif ($current_hour < 18) {
-            $next->setTime(18, 0, 0);
+            $next_update->setTime(18, 0, 0);
         } else {
-            $next->add(new DateInterval('P1D'));
-            $next->setTime(6, 0, 0);
+            $next_update->modify('+1 day');
+            $next_update->setTime(6, 0, 0);
         }
         
-        return $next->format('Y-m-d H:i:s');
+        return $next_update->format('Y-m-d H:i:s');
     }
     
     /**
      * Get fallback data when scraping fails
      */
-    private function get_fallback_data() {
-        $current_date = new DateTime('now', new DateTimeZone('Australia/Melbourne'));
-        $forecast_data = array();
-        
-        for ($i = 0; $i < 4; $i++) {
-            $forecast_date = clone $current_date;
-            $forecast_date->add(new DateInterval('P' . $i . 'D'));
-            
-            $day_label = $i === 0 ? 'Today' : ($i === 1 ? 'Tomorrow' : $forecast_date->format('l'));
-            $date_string = $forecast_date->format('D, j F Y');
-            
-            $forecast_data[] = array(
-                'day' => $day_label,
-                'date' => $date_string,
-                'fire_danger_rating' => 'ERROR LOADING',
-                'total_fire_ban' => false,
-                'district' => 'North Central Fire District',
-                'forecast_date' => $forecast_date->format('Y-m-d')
-            );
-        }
-        
+    private function get_fallback_data($district = '') {
         return array(
-            'data' => $forecast_data,
-            'last_updated' => current_time('mysql'),
-            'next_update' => $this->get_next_update_time(),
-            'source_url' => $this->base_url . 'north-central-fire-district'
+            'data' => array(
+                'current_rating' => 'NO RATING',
+                'total_fire_ban' => false,
+                'forecast' => array(
+                    array('day' => 'Today', 'date' => date('Y-m-d'), 'rating' => 'NO RATING', 'total_fire_ban' => false),
+                    array('day' => 'Tomorrow', 'date' => date('Y-m-d', strtotime('+1 day')), 'rating' => 'NO RATING', 'total_fire_ban' => false),
+                    array('day' => 'Day 3', 'date' => date('Y-m-d', strtotime('+2 days')), 'rating' => 'NO RATING', 'total_fire_ban' => false),
+                    array('day' => 'Day 4', 'date' => date('Y-m-d', strtotime('+3 days')), 'rating' => 'NO RATING', 'total_fire_ban' => false)
+                ),
+                'last_updated' => current_time('mysql')
+            ),
+            'source_url' => 'https://www.cfa.vic.gov.au/rss-feeds'
         );
     }
 }

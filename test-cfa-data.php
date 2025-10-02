@@ -2,8 +2,8 @@
 /**
  * CFA Fire Forecast Data Test Script
  * 
- * This script demonstrates the data fetching capabilities of the WordPress plugin
- * using the CFA internal API (discovered through reverse engineering the JavaScript).
+ * This script demonstrates the data fetching using CFA's official RSS feeds.
+ * RSS feeds are publicly accessible and contain fire danger ratings for all districts.
  */
 
 // Error reporting for debugging
@@ -24,23 +24,23 @@ function esc_url($url) {
 }
 
 /**
- * CFA Fire Forecast API Scraper (uses internal CFA API)
+ * CFA Fire Forecast RSS Feed Scraper (WordPress-free version)
  */
-class CFA_Fire_Forecast_API_Scraper {
+class CFA_Fire_Forecast_RSS_Scraper {
     
-    private $api_url = 'https://www.cfa.vic.gov.au/api/cfa/tfbfdr/district';
-    private $admin_email = 'digitalworkflow@cfa.vic.gov.au';
+    private $rss_base_url = 'https://www.cfa.vic.gov.au/cfa/rssfeed/';
     
-    // Map URL slugs to proper district names for API
-    private $district_map = array(
-        'central-fire-district' => 'Central',
-        'mallee-fire-district' => 'Mallee',
-        'north-central-fire-district' => 'North Central',
-        'north-east-fire-district' => 'North East',
-        'northern-country-fire-district' => 'Northern Country',
-        'south-west-fire-district' => 'South West',
-        'west-and-south-gippsland-fire-district' => 'West and South Gippsland',
-        'wimmera-fire-district' => 'Wimmera'
+    // Map district slugs to RSS feed filenames
+    private $rss_feed_map = array(
+        'central-fire-district' => 'central-firedistrict_rss.xml',
+        'mallee-fire-district' => 'mallee-firedistrict_rss.xml',
+        'north-central-fire-district' => 'northcentral-firedistrict_rss.xml',
+        'north-east-fire-district' => 'northeast-firedistrict_rss.xml',
+        'northern-country-fire-district' => 'northerncountry-firedistrict_rss.xml',
+        'south-west-fire-district' => 'southwest-firedistrict_rss.xml',
+        'west-and-south-gippsland-fire-district' => 'westandsouthgippsland-firedistrict_rss.xml',
+        'wimmera-fire-district' => 'wimmera-firedistrict_rss.xml',
+        'east-gippsland-fire-district' => 'eastgippsland-firedistrict_rss.xml'
     );
     
     /**
@@ -57,12 +57,12 @@ class CFA_Fire_Forecast_API_Scraper {
         $source_urls = array();
         
         foreach ($districts as $district) {
-            echo "🔄 Fetching data for: " . ucwords(str_replace('-', ' ', $district)) . "<br>";
+            echo "🔄 Fetching RSS feed for: " . ucwords(str_replace('-', ' ', $district)) . "<br>";
             $district_data = $this->scrape_fire_data($district);
             if ($district_data && !empty($district_data['data'])) {
                 $all_data[$district] = $district_data['data'];
                 $source_urls[] = $district_data['source_url'];
-                echo "✅ Success<br>";
+                echo "✅ Success - Rating: " . $district_data['data']['current_rating'] . "<br>";
             } else {
                 echo "❌ Failed<br>";
             }
@@ -79,49 +79,121 @@ class CFA_Fire_Forecast_API_Scraper {
     }
     
     /**
-     * Scrape fire danger data for a specific district using CFA API
+     * Scrape fire danger data from RSS feed
      */
     public function scrape_fire_data($district_slug = 'north-central-fire-district') {
-        // Convert URL slug to proper district name
-        $district_name = isset($this->district_map[$district_slug]) 
-            ? $this->district_map[$district_slug] 
-            : ucwords(str_replace('-', ' ', str_replace('-fire-district', '', $district_slug)));
+        if (!isset($this->rss_feed_map[$district_slug])) {
+            echo "⚠️ Unknown district: $district_slug<br>";
+            return false;
+        }
         
-        echo "📍 District: $district_name<br>";
+        $rss_url = $this->rss_base_url . $this->rss_feed_map[$district_slug];
+        echo "📡 Fetching: $rss_url<br>";
+        
+        // Fetch RSS feed using cURL
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $rss_url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; CFA-Fire-Forecast-Test/1.0)');
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        
+        $xml_content = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+        
+        if ($error) {
+            echo "❌ cURL Error: $error<br>";
+            return false;
+        }
+        
+        if ($http_code !== 200) {
+            echo "⚠️ HTTP $http_code<br>";
+            return false;
+        }
+        
+        echo "✅ HTTP 200 - RSS feed loaded successfully<br>";
+        
+        return $this->parse_rss_feed($xml_content, $district_slug);
+    }
+    
+    /**
+     * Parse RSS feed XML
+     */
+    private function parse_rss_feed($xml_content, $district_slug) {
+        libxml_use_internal_errors(true);
+        $xml = simplexml_load_string($xml_content);
+        
+        if ($xml === false) {
+            echo "❌ Failed to parse XML<br>";
+            return false;
+        }
+        
+        echo "📄 Parsing RSS items...<br>";
         
         $forecast_data = array();
         $current_rating = 'NO RATING';
         $total_fire_ban = false;
         
-        // Fetch 4-day forecast
-        for ($i = 0; $i < 4; $i++) {
-            $date = date('Y-m-d H:i:s', strtotime("+$i days"));
-            $day_name = $i === 0 ? 'Today' : ($i === 1 ? 'Tomorrow' : date('D, j M Y', strtotime("+$i days")));
+        $items = $xml->channel->item;
+        $day_count = 0;
+        
+        foreach ($items as $item) {
+            $title = (string)$item->title;
             
-            $api_data = $this->fetch_api_data($district_name, $date);
-            
-            if ($api_data) {
-                $forecast_data[] = array(
-                    'day' => $day_name,
-                    'date' => date('Y-m-d', strtotime("+$i days")),
-                    'rating' => $api_data['rating'],
-                    'total_fire_ban' => $api_data['total_fire_ban']
-                );
-                
-                // Use first day's data for current rating
-                if ($i === 0) {
-                    $current_rating = $api_data['rating'];
-                    $total_fire_ban = $api_data['total_fire_ban'];
-                }
-            } else {
-                $forecast_data[] = array(
-                    'day' => $day_name,
-                    'date' => date('Y-m-d', strtotime("+$i days")),
-                    'rating' => 'NO RATING',
-                    'total_fire_ban' => false
-                );
+            // Skip municipality restrictions item
+            if (stripos($title, 'municipality') !== false || stripos($title, 'restrictions') !== false) {
+                continue;
             }
+            
+            if ($day_count >= 4) {
+                break;
+            }
+            
+            $description = (string)$item->description;
+            
+            // Extract rating
+            $rating = $this->extract_rating($description);
+            
+            // Extract TFB status
+            $tfb = $this->extract_tfb_status($description);
+            
+            // Day name
+            if ($day_count === 0) {
+                $day_name = 'Today';
+                $current_rating = $rating;
+                $total_fire_ban = $tfb;
+            } elseif ($day_count === 1) {
+                $day_name = 'Tomorrow';
+            } else {
+                $day_name = $title;
+            }
+            
+            echo "  📅 $day_name: $rating" . ($tfb ? ' (TFB)' : '') . "<br>";
+            
+            $forecast_data[] = array(
+                'day' => $day_name,
+                'date' => $this->parse_date_from_title($title),
+                'rating' => $rating,
+                'total_fire_ban' => $tfb
+            );
+            
+            $day_count++;
         }
+        
+        // Pad to 4 days if needed
+        while (count($forecast_data) < 4) {
+            $forecast_data[] = array(
+                'day' => 'Day ' . (count($forecast_data) + 1),
+                'date' => date('Y-m-d', strtotime('+' . count($forecast_data) . ' days')),
+                'rating' => 'NO RATING',
+                'total_fire_ban' => false
+            );
+        }
+        
+        echo "✅ Parsed " . count($forecast_data) . " days of forecast<br>";
         
         return array(
             'data' => array(
@@ -130,69 +202,58 @@ class CFA_Fire_Forecast_API_Scraper {
                 'forecast' => $forecast_data,
                 'last_updated' => current_time('mysql')
             ),
-            'source_url' => 'https://www.cfa.vic.gov.au/warnings-restrictions/fire-bans-ratings-and-restrictions/total-fire-bans-fire-danger-ratings/' . $district_slug
+            'source_url' => $this->rss_base_url . $this->rss_feed_map[$district_slug]
         );
     }
     
     /**
-     * Fetch data from CFA API
+     * Extract fire danger rating from description
      */
-    private function fetch_api_data($district_name, $date) {
-        $payload = json_encode(array(
-            'IssueDate' => $date,
-            'DistrictName' => $district_name,
-            'AdminEmailAddress' => $this->admin_email
-        ));
-        
-        echo "🌐 API Request: $district_name for " . date('Y-m-d', strtotime($date)) . "<br>";
-        
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this->api_url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        $response = curl_exec($ch);
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        
-        if ($http_code !== 200) {
-            echo "⚠️ API request failed: HTTP $http_code<br>";
-            return false;
+    private function extract_rating($description) {
+        if (preg_match('/:\s*(CATASTROPHIC|EXTREME|HIGH|MODERATE|LOW-MODERATE|NO RATING)/i', $description, $matches)) {
+            return strtoupper($matches[1]);
         }
         
-        $data = json_decode($response, true);
-        
-        if (!$data || !is_array($data) || count($data) === 0) {
-            echo "⚠️ No data returned from API<br>";
-            return false;
+        $ratings = array('CATASTROPHIC', 'EXTREME', 'HIGH', 'MODERATE', 'LOW-MODERATE');
+        foreach ($ratings as $rating) {
+            if (stripos($description, $rating) !== false) {
+                return $rating;
+            }
         }
         
-        $item = $data[0];
-        $rating = isset($item['DistrictRating']) && !empty($item['DistrictRating']) 
-            ? strtoupper($item['DistrictRating']) 
-            : 'NO RATING';
-        $district_data = isset($item['DistrictData']) ? $item['DistrictData'] : '';
-        $forecast_info = isset($item['ForeCastInformation']) ? $item['ForeCastInformation'] : '';
-        
-        // Check for total fire ban - YES at start of DistrictData or in ForeCastInformation
-        $total_fire_ban = false;
-        if (stripos($district_data, 'YES') === 0 || stripos($forecast_info, 'Total Fire Ban') !== false) {
-            $total_fire_ban = true;
-        }
-        
-        echo "✅ API Response: Rating = $rating, TFB = " . ($total_fire_ban ? 'YES' : 'NO') . "<br>";
-        
-        return array(
-            'rating' => $rating,
-            'total_fire_ban' => $total_fire_ban
-        );
+        return 'NO RATING';
     }
     
     /**
-     * Calculate next update time (6 AM or 6 PM Melbourne time)
+     * Extract Total Fire Ban status
+     */
+    private function extract_tfb_status($description) {
+        if (stripos($description, 'is not currently a day of Total Fire Ban') !== false) {
+            return false;
+        }
+        
+        if (stripos($description, 'Total Fire Ban in force') !== false ||
+            stripos($description, 'is a day of Total Fire Ban') !== false ||
+            stripos($description, 'Total Fire Ban declared') !== false) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Parse date from title
+     */
+    private function parse_date_from_title($title) {
+        $timestamp = strtotime($title);
+        if ($timestamp !== false) {
+            return date('Y-m-d', $timestamp);
+        }
+        return date('Y-m-d');
+    }
+    
+    /**
+     * Get next update time
      */
     private function get_next_update_time() {
         $melbourne_tz = new DateTimeZone('Australia/Melbourne');
@@ -212,32 +273,10 @@ class CFA_Fire_Forecast_API_Scraper {
         
         return $next_update->format('Y-m-d H:i:s');
     }
-    
-    /**
-     * Get color class for rating
-     */
-    private function get_rating_color($rating) {
-        $colors = array(
-            'CATASTROPHIC' => 'catastrophic',
-            'EXTREME' => 'extreme',
-            'HIGH' => 'high',
-            'MODERATE' => 'moderate',
-            'LOW-MODERATE' => 'low-moderate',
-            'NO RATING' => 'no-rating'
-        );
-        
-        $rating_upper = strtoupper($rating);
-        return isset($colors[$rating_upper]) ? $colors[$rating_upper] : 'no-rating';
-    }
 }
 
 // Initialize the scraper
-$scraper = new CFA_Fire_Forecast_API_Scraper();
-
-// Get test parameters
-$test_type = isset($_GET['test']) ? $_GET['test'] : 'single';
-$district = isset($_GET['district']) ? $_GET['district'] : 'north-central-fire-district';
-$districts = isset($_GET['districts']) ? $_GET['districts'] : 'north-central-fire-district,south-west-fire-district';
+$scraper = new CFA_Fire_Forecast_RSS_Scraper();
 
 ?><!DOCTYPE html>
 <html lang="en">
@@ -380,22 +419,42 @@ $districts = isset($_GET['districts']) ? $_GET['districts'] : 'north-central-fir
             color: #004080;
             margin-bottom: 15px;
         }
+        
+        .success-banner {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px;
+            text-align: center;
+        }
+        
+        .success-banner h3 {
+            color: #28a745;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>🔥 CFA Fire Forecast Data Test</h1>
-            <p>Using CFA Internal API (Reverse Engineered)</p>
+            <p>Using Official CFA RSS Feeds</p>
+        </div>
+        
+        <div class="success-banner">
+            <h3>✅ Solution Found: RSS Feeds Work!</h3>
+            <p>Official CFA RSS feeds are publicly accessible with no blocking or authentication required.</p>
         </div>
         
         <div class="info-box">
-            <strong>Purpose:</strong> This test script shows exactly what data the WordPress plugin fetches from the CFA API in real-time, without requiring WordPress installation.
+            <strong>Purpose:</strong> This test script shows exactly what data the WordPress plugin fetches from CFA's official RSS feeds in real-time, without requiring WordPress installation.
         </div>
         
         <div class="status-box">
-            <strong>📡 Live Test Status:</strong> Fetching real-time data from CFA API...<br>
-            <strong>Current Melbourne Time:</strong> <?php echo date('Y-m-d H:i:s'); ?> UTC
+            <strong>📡 Live Test Status:</strong> Fetching real-time data from CFA RSS feeds...<br>
+            <strong>Current Melbourne Time:</strong> <?php echo date('Y-m-d H:i:s'); ?> UTC<br>
+            <strong>RSS Feed Source:</strong> <a href="https://www.cfa.vic.gov.au/rss-feeds" target="_blank">CFA Official RSS Feeds</a>
         </div>
         
         <div class="content">
@@ -406,7 +465,7 @@ $districts = isset($_GET['districts']) ? $_GET['districts'] : 'north-central-fir
             <!-- Test 1: Single District -->
             <div class="test-section">
                 <h2>🧪 Test 1: Single District Data (North Central)</h2>
-                <p>Testing data extraction for a single fire district...</p>
+                <p>Testing data extraction from RSS feed for a single fire district...</p>
                 
                 <div class="debug-output">
                     <strong>Debug Output:</strong><br><br>
@@ -444,7 +503,7 @@ $districts = isset($_GET['districts']) ? $_GET['districts'] : 'north-central-fir
                     </table>
                     
                     <p><small><strong>Last Updated:</strong> <?php echo esc_html($single_data['data']['last_updated']); ?></small></p>
-                    <p><small><strong>Source:</strong> <a href="<?php echo esc_url($single_data['source_url']); ?>" target="_blank">CFA Official Website</a></small></p>
+                    <p><small><strong>RSS Feed:</strong> <a href="<?php echo esc_url($single_data['source_url']); ?>" target="_blank">View Raw RSS</a></small></p>
                 <?php else: ?>
                     <p style="color: #dc3545;"><strong>⚠️ Failed to fetch data</strong></p>
                 <?php endif; ?>
@@ -453,7 +512,7 @@ $districts = isset($_GET['districts']) ? $_GET['districts'] : 'north-central-fir
             <!-- Test 2: Multi-District Table -->
             <div class="test-section">
                 <h2>🧪 Test 2: Multi-District Comparison</h2>
-                <p>Testing multi-district table view with North Central and South West districts...</p>
+                <p>Testing multi-district table view with RSS feeds...</p>
                 
                 <div class="debug-output">
                     <strong>Debug Output:</strong><br><br>
