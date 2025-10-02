@@ -158,8 +158,8 @@ class CFA_Fire_Forecast_Frontend {
                                         <?php 
                                         // Get dates from first district
                                         $first_district = reset($district_data);
-                                        if ($first_district):
-                                            foreach ($first_district as $index => $day): ?>
+                                        if ($first_district && isset($first_district['forecast'])):
+                                            foreach ($first_district['forecast'] as $index => $day): ?>
                                                 <th class="day-header <?php echo $index === 0 ? 'today' : ''; ?>">
                                                     <div class="day-name"><?php echo esc_html($day['day']); ?></div>
                                                     <div class="day-date"><?php echo esc_html($day['date']); ?></div>
@@ -170,12 +170,12 @@ class CFA_Fire_Forecast_Frontend {
                                 </thead>
                                 <tbody>
                                     <?php foreach ($districts as $district): 
-                                        if (isset($district_data[$district])): ?>
+                                        if (isset($district_data[$district]) && isset($district_data[$district]['forecast'])): ?>
                                         <tr class="district-row">
                                             <td class="district-name">
                                                 <?php echo esc_html(ucwords(str_replace('-', ' ', $district))); ?>
                                             </td>
-                                            <?php foreach ($district_data[$district] as $index => $day): ?>
+                                            <?php foreach ($district_data[$district]['forecast'] as $index => $day): ?>
                                             <td class="forecast-cell <?php echo $index === 0 ? 'today' : ''; ?>">
                                                 <div class="cfa-fire-danger-badge rating-<?php echo esc_attr($this->get_rating_class($day['fire_danger_rating'])); ?>">
                                                     <?php echo esc_html($day['fire_danger_rating']); ?>
