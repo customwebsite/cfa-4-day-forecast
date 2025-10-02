@@ -41,6 +41,11 @@ Preferred communication style: Simple, everyday language.
 - **WordPress Security**: Proper nonce verification and capability checks for admin functions
 - **WordPress Standards**: Follows WordPress plugin development guidelines and security practices
 
+### Admin Settings Interface
+- **General Settings**: District selection, cache duration, update frequency
+- **Display Settings**: Color schemes, visibility toggles, custom header text
+- **Layout Settings**: Display format (table/cards/compact), forecast days, table styling, responsive design
+
 ## External Dependencies
 
 ### Core Web Scraping
