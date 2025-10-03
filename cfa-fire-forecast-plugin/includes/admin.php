@@ -477,6 +477,21 @@ class CFA_Fire_Forecast_Admin {
                 <div id="cache-status" style="margin-top: 10px;"></div>
             </div>
             
+            <div style="background: #fff; padding: 20px; margin: 20px 0; border-left: 4px solid #00a32a;">
+                <h3><?php _e('Test Data Script', 'cfa-fire-forecast'); ?></h3>
+                <p><?php _e('Use the test script to verify that the RSS feed data is being fetched correctly from the CFA website.', 'cfa-fire-forecast'); ?></p>
+                <p>
+                    <a href="<?php echo esc_url(CFA_FIRE_FORECAST_PLUGIN_URL . 'test-cfa-data.php'); ?>" 
+                       class="button button-primary" 
+                       target="_blank">
+                        <?php _e('Open Test Script', 'cfa-fire-forecast'); ?>
+                    </a>
+                </p>
+                <p style="margin-top: 10px; font-size: 12px; color: #666;">
+                    <?php _e('The test script shows raw data from CFA RSS feeds for all districts. Useful for troubleshooting data issues.', 'cfa-fire-forecast'); ?>
+                </p>
+            </div>
+            
             <script>
             function cfaClearCache() {
                 var button = event.target;
