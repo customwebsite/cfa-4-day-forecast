@@ -107,6 +107,14 @@ class CFA_Fire_Forecast_Admin {
         );
         
         add_settings_field(
+            'show_refresh_button',
+            __('Show Manual Refresh Button', 'cfa-fire-forecast'),
+            array($this, 'show_refresh_button_render'),
+            'cfa_fire_forecast',
+            'cfa_display_section'
+        );
+        
+        add_settings_field(
             'header_text',
             __('Custom Header Text', 'cfa-fire-forecast'),
             array($this, 'header_text_render'),
@@ -298,6 +306,21 @@ class CFA_Fire_Forecast_Admin {
             <?php _e('Display last updated timestamp', 'cfa-fire-forecast'); ?>
         </label>
         <p class="description"><?php _e('Shows when the fire data was last refreshed.', 'cfa-fire-forecast'); ?></p>
+        <?php
+    }
+    
+    /**
+     * Display Settings - Show Refresh Button
+     */
+    public function show_refresh_button_render() {
+        $options = get_option('cfa_fire_forecast_options');
+        $show_button = isset($options['show_refresh_button']) ? $options['show_refresh_button'] : 'yes';
+        ?>
+        <label>
+            <input type='checkbox' name='cfa_fire_forecast_options[show_refresh_button]' value='yes' <?php checked($show_button, 'yes'); ?>>
+            <?php _e('Display manual refresh button', 'cfa-fire-forecast'); ?>
+        </label>
+        <p class="description"><?php _e('Allows users to manually refresh the fire data. Data updates automatically twice daily regardless.', 'cfa-fire-forecast'); ?></p>
         <?php
     }
     

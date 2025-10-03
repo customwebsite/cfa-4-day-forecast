@@ -138,7 +138,10 @@ class CFA_Fire_Forecast_Frontend {
                     <div class="cfa-status-item">
                         <span>Last updated: <?php echo esc_html(date('j F Y, g:i A', strtotime($data['last_updated'] . ' Australia/Melbourne'))); ?> (Melbourne time)</span>
                     </div>
-                    <?php if ($atts['auto_refresh'] === 'true'): ?>
+                    <?php 
+                    $options = get_option('cfa_fire_forecast_options');
+                    $show_refresh = isset($options['show_refresh_button']) ? $options['show_refresh_button'] : 'yes';
+                    if ($atts['auto_refresh'] === 'true' && $show_refresh === 'yes'): ?>
                     <div class="cfa-status-item">
                         <button class="cfa-refresh-btn" onclick="cfaRefreshData()">Refresh Now</button>
                     </div>
@@ -269,7 +272,10 @@ class CFA_Fire_Forecast_Frontend {
                     <div class="cfa-status-item">
                         <span>Last updated: <?php echo esc_html(date('j F Y, g:i A', strtotime($data['last_updated'] . ' Australia/Melbourne'))); ?> (Melbourne time)</span>
                     </div>
-                    <?php if ($atts['auto_refresh'] === 'true'): ?>
+                    <?php 
+                    $options = get_option('cfa_fire_forecast_options');
+                    $show_refresh = isset($options['show_refresh_button']) ? $options['show_refresh_button'] : 'yes';
+                    if ($atts['auto_refresh'] === 'true' && $show_refresh === 'yes'): ?>
                     <div class="cfa-status-item">
                         <button class="cfa-refresh-btn" onclick="cfaRefreshData()">Refresh Now</button>
                     </div>
