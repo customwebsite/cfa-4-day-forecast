@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('CFA_FIRE_FORECAST_VERSION', '4.0.0');
+define('CFA_FIRE_FORECAST_VERSION', '4.0.2');
 define('CFA_FIRE_FORECAST_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('CFA_FIRE_FORECAST_PLUGIN_URL', plugin_dir_url(__FILE__));
 
