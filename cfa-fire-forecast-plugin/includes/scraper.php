@@ -61,9 +61,12 @@ class CFA_Fire_Forecast_Scraper {
      * Scrape fire danger data from RSS feed for a specific district
      */
     public function scrape_fire_data($district = 'north-central-fire-district') {
+        $start_time = microtime(true);
+        
         // Get RSS feed URL for this district
         if (!isset($this->rss_feed_map[$district])) {
             error_log('CFA Fire Forecast: Unknown district - ' . $district);
+            $this->log_fetch_request($district, false, 'Unknown district', 0);
             return $this->get_fallback_data($district);
         }
         
@@ -75,18 +78,48 @@ class CFA_Fire_Forecast_Scraper {
             'user-agent' => 'Mozilla/5.0 (compatible; CFA-Fire-Forecast-WordPress-Plugin/1.0)'
         ));
         
+        $response_time = round((microtime(true) - $start_time) * 1000);
+        
         if (is_wp_error($response)) {
-            error_log('CFA Fire Forecast: Error fetching RSS - ' . $response->get_error_message());
+            $error_msg = $response->get_error_message();
+            error_log('CFA Fire Forecast: Error fetching RSS - ' . $error_msg);
+            $this->log_fetch_request($district, false, $error_msg, $response_time, $rss_url);
             return $this->get_fallback_data($district);
         }
         
         $xml_content = wp_remote_retrieve_body($response);
         if (empty($xml_content)) {
             error_log('CFA Fire Forecast: Empty RSS response');
+            $this->log_fetch_request($district, false, 'Empty RSS response', $response_time, $rss_url);
             return $this->get_fallback_data($district);
         }
         
+        $this->log_fetch_request($district, true, 'Success', $response_time, $rss_url);
         return $this->parse_rss_feed($xml_content, $district);
+    }
+    
+    /**
+     * Log fetch request for debugging
+     */
+    private function log_fetch_request($district, $success, $message, $response_time, $url = '') {
+        $logs = get_option('cfa_fire_forecast_fetch_logs', array());
+        
+        // Add new log entry
+        $logs[] = array(
+            'timestamp' => current_time('mysql'),
+            'district' => $district,
+            'success' => $success,
+            'message' => $message,
+            'response_time' => $response_time,
+            'url' => $url
+        );
+        
+        // Keep only last 50 entries
+        if (count($logs) > 50) {
+            $logs = array_slice($logs, -50);
+        }
+        
+        update_option('cfa_fire_forecast_fetch_logs', $logs);
     }
     
     /**

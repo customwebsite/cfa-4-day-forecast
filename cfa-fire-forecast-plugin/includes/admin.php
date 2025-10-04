@@ -13,6 +13,8 @@ class CFA_Fire_Forecast_Admin {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'settings_init'));
         add_action('admin_enqueue_scripts', array($this, 'admin_scripts'));
+        add_action('wp_ajax_cfa_clear_cache', array($this, 'ajax_clear_cache'));
+        add_action('wp_ajax_cfa_clear_logs', array($this, 'ajax_clear_logs'));
     }
     
     /**
@@ -515,6 +517,62 @@ class CFA_Fire_Forecast_Admin {
                 </p>
             </div>
             
+            <div style="background: #fff; padding: 20px; margin: 20px 0; border-left: 4px solid #f0ad4e;">
+                <h3><?php _e('Data Fetch Logs', 'cfa-fire-forecast'); ?></h3>
+                <p><?php _e('View the last 50 data fetch requests to CFA RSS feeds. Useful for debugging connection issues.', 'cfa-fire-forecast'); ?></p>
+                
+                <?php
+                $logs = get_option('cfa_fire_forecast_fetch_logs', array());
+                
+                if (empty($logs)): ?>
+                    <p style="color: #666; font-style: italic;"><?php _e('No fetch logs available yet. Logs will appear here after the plugin fetches data from CFA RSS feeds.', 'cfa-fire-forecast'); ?></p>
+                <?php else:
+                    $logs = array_reverse($logs); // Show newest first
+                    ?>
+                    <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 4px; margin-top: 15px;">
+                        <table class="wp-list-table widefat fixed striped" style="margin: 0;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 160px;"><?php _e('Timestamp', 'cfa-fire-forecast'); ?></th>
+                                    <th style="width: 200px;"><?php _e('District', 'cfa-fire-forecast'); ?></th>
+                                    <th style="width: 80px;"><?php _e('Status', 'cfa-fire-forecast'); ?></th>
+                                    <th style="width: 100px;"><?php _e('Response Time', 'cfa-fire-forecast'); ?></th>
+                                    <th><?php _e('Message', 'cfa-fire-forecast'); ?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($logs as $log): ?>
+                                <tr>
+                                    <td><?php echo esc_html($log['timestamp']); ?></td>
+                                    <td><?php echo esc_html(ucwords(str_replace('-', ' ', $log['district']))); ?></td>
+                                    <td>
+                                        <?php if ($log['success']): ?>
+                                            <span style="color: #28a745; font-weight: bold;">✓ Success</span>
+                                        <?php else: ?>
+                                            <span style="color: #dc3232; font-weight: bold;">✗ Failed</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td><?php echo esc_html($log['response_time']); ?> ms</td>
+                                    <td>
+                                        <?php echo esc_html($log['message']); ?>
+                                        <?php if (!empty($log['url'])): ?>
+                                            <br><small style="color: #666;"><?php echo esc_html($log['url']); ?></small>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p style="margin-top: 15px;">
+                        <button type="button" class="button button-secondary" onclick="cfaClearLogs()">
+                            <?php _e('Clear Logs', 'cfa-fire-forecast'); ?>
+                        </button>
+                        <span id="log-status" style="margin-left: 10px;"></span>
+                    </p>
+                <?php endif; ?>
+            </div>
+            
             <script>
             function cfaClearCache() {
                 var button = event.target;
@@ -541,8 +599,72 @@ class CFA_Fire_Forecast_Admin {
                     }, 3000);
                 });
             }
+            
+            function cfaClearLogs() {
+                var button = event.target;
+                var status = document.getElementById('log-status');
+                
+                if (!confirm('<?php _e('Are you sure you want to clear all fetch logs?', 'cfa-fire-forecast'); ?>')) {
+                    return;
+                }
+                
+                button.disabled = true;
+                button.textContent = '<?php _e('Clearing...', 'cfa-fire-forecast'); ?>';
+                
+                jQuery.post(ajaxurl, {
+                    action: 'cfa_clear_logs',
+                    nonce: '<?php echo wp_create_nonce('cfa_clear_logs'); ?>'
+                }, function(response) {
+                    if (response.success) {
+                        status.innerHTML = '<span style="color: green;"><?php _e('Logs cleared successfully!', 'cfa-fire-forecast'); ?></span>';
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        status.innerHTML = '<span style="color: red;"><?php _e('Error clearing logs.', 'cfa-fire-forecast'); ?></span>';
+                    }
+                    
+                    button.disabled = false;
+                    button.textContent = '<?php _e('Clear Logs', 'cfa-fire-forecast'); ?>';
+                });
+            }
             </script>
         </div>
         <?php
+    }
+    
+    /**
+     * AJAX handler to clear cache
+     */
+    public function ajax_clear_cache() {
+        check_ajax_referer('cfa_clear_cache', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Insufficient permissions');
+            return;
+        }
+        
+        // Clear all CFA fire forecast transients
+        global $wpdb;
+        $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_cfa_fire_forecast_%'");
+        $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_cfa_fire_forecast_%'");
+        
+        wp_send_json_success('Cache cleared successfully');
+    }
+    
+    /**
+     * AJAX handler to clear fetch logs
+     */
+    public function ajax_clear_logs() {
+        check_ajax_referer('cfa_clear_logs', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Insufficient permissions');
+            return;
+        }
+        
+        delete_option('cfa_fire_forecast_fetch_logs');
+        
+        wp_send_json_success('Logs cleared successfully');
     }
 }
