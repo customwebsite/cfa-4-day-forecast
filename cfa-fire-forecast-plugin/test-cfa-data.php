@@ -10,6 +10,9 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// Set timezone to Melbourne
+date_default_timezone_set('Australia/Melbourne');
+
 // Mock WordPress functions
 function current_time($type) {
     return date('Y-m-d H:i:s');
@@ -453,7 +456,7 @@ $scraper = new CFA_Fire_Forecast_RSS_Scraper();
         
         <div class="status-box">
             <strong>📡 Live Test Status:</strong> Fetching real-time data from CFA RSS feeds...<br>
-            <strong>Current Melbourne Time:</strong> <?php echo date('Y-m-d H:i:s'); ?> UTC<br>
+            <strong>Current Melbourne Time:</strong> <?php echo date('Y-m-d H:i:s'); ?> AEDT<br>
             <strong>RSS Feed Source:</strong> <a href="https://www.cfa.vic.gov.au/rss-feeds" target="_blank">CFA Official RSS Feeds</a>
         </div>
         
