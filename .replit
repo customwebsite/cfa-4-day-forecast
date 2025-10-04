@@ -24,10 +24,6 @@ externalPort = 8080
 localPort = 5000
 externalPort = 80
 
-[[ports]]
-localPort = 44593
-externalPort = 3000
-
 [agent]
 expertMode = true
 
@@ -47,10 +43,10 @@ args = "CFA Data Test"
 name = "CFA Data Test"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "php -S 0.0.0.0:5000 test-cfa-data.php"
-waitForPort = 5000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "php -S 0.0.0.0:5000 cfa-fire-forecast-plugin/test-cfa-data.php"
+waitForPort = 5000
