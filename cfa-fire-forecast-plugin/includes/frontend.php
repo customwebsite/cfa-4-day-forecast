@@ -136,7 +136,11 @@ class CFA_Fire_Forecast_Frontend {
                         <span>Data loaded successfully</span>
                     </div>
                     <div class="cfa-status-item">
-                        <span>Last updated: <?php echo esc_html(date('j F Y, g:i A', strtotime($data['last_updated'] . ' Australia/Melbourne'))); ?> (Melbourne time)</span>
+                        <span>Last updated: <?php 
+                            $datetime = new DateTime($data['last_updated'], new DateTimeZone('UTC'));
+                            $datetime->setTimezone(new DateTimeZone('Australia/Melbourne'));
+                            echo esc_html($datetime->format('j F Y, g:i A')); 
+                        ?> (Melbourne time)</span>
                     </div>
                     <?php 
                     $options = get_option('cfa_fire_forecast_options');
@@ -270,7 +274,11 @@ class CFA_Fire_Forecast_Frontend {
                         <span>Data loaded successfully</span>
                     </div>
                     <div class="cfa-status-item">
-                        <span>Last updated: <?php echo esc_html(date('j F Y, g:i A', strtotime($data['last_updated'] . ' Australia/Melbourne'))); ?> (Melbourne time)</span>
+                        <span>Last updated: <?php 
+                            $datetime = new DateTime($data['last_updated'], new DateTimeZone('UTC'));
+                            $datetime->setTimezone(new DateTimeZone('Australia/Melbourne'));
+                            echo esc_html($datetime->format('j F Y, g:i A')); 
+                        ?> (Melbourne time)</span>
                     </div>
                     <?php 
                     $options = get_option('cfa_fire_forecast_options');
