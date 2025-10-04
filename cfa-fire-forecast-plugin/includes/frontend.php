@@ -296,17 +296,16 @@ class CFA_Fire_Forecast_Frontend {
                     </div>
                     <div class="cfa-forecast-content">
                         <div class="cfa-forecast-grid">
-                            <?php foreach ($data['data'] as $index => $day): ?>
+                            <?php foreach ($data['data']['forecast'] as $index => $day): ?>
                             <div class="cfa-forecast-day <?php echo $index === 0 ? 'today' : ''; ?>">
                                 <div class="cfa-day-header"><?php echo esc_html($day['day']); ?></div>
                                 <div class="cfa-day-date"><?php echo esc_html($day['date']); ?></div>
-                                <div class="cfa-fire-danger-badge rating-<?php echo esc_attr($this->get_rating_class($day['fire_danger_rating'])); ?>">
-                                    <?php echo esc_html($day['fire_danger_rating']); ?>
+                                <div class="cfa-fire-danger-badge rating-<?php echo esc_attr($this->get_rating_class($day['rating'])); ?>">
+                                    <?php echo esc_html($day['rating']); ?>
                                 </div>
                                 <?php if ($day['total_fire_ban']): ?>
                                 <div class="cfa-total-fire-ban">⚠️ TOTAL FIRE BAN</div>
                                 <?php endif; ?>
-                                <div class="cfa-district-name"><?php echo esc_html($day['district']); ?></div>
                             </div>
                             <?php endforeach; ?>
                         </div>
