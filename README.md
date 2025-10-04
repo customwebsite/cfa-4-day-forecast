@@ -17,7 +17,7 @@ A WordPress plugin that displays real-time fire danger forecasts for Victoria, A
 
 Download the latest version:
 
-**[Download CFA Fire Forecast Plugin (v4.0.4)](https://github.com/customwebsite/cfa-4-day-forecast/raw/main/cfa-fire-forecast-plugin.zip)**
+**[Download CFA Fire Forecast Plugin (v4.1.0)](https://github.com/customwebsite/cfa-4-day-forecast/raw/main/cfa-fire-forecast-plugin.zip)**
 
 ## Installation
 
@@ -164,9 +164,15 @@ This information is for general reference only. Always check the official CFA we
 
 - **Author**: Shaun Haddrill
 - **Data Source**: Country Fire Authority (CFA) Victoria
-- **Version**: 4.0.4
+- **Version**: 4.1.0
 
 ## Changelog
+
+### Version 4.1.0
+- Added logging settings section with enable/disable toggle
+- Added log retention period options (7 days, 28 days, 1 year, indefinite)
+- Automatic cleanup of old logs based on retention period
+- Option to keep all logs indefinitely
 
 ### Version 4.0.4
 - Added "Reset to Default" button for table header color
