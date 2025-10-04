@@ -242,9 +242,10 @@ class CFA_Fire_Forecast_Scraper {
                 'current_rating' => $current_rating,
                 'total_fire_ban' => $total_fire_ban,
                 'forecast' => $forecast_data,
-                'last_updated' => current_time('mysql')
+                'district' => ucwords(str_replace('-', ' ', $district))
             ),
-            'source_url' => $this->rss_base_url . $this->rss_feed_map[$district]
+            'source_url' => $this->rss_base_url . $this->rss_feed_map[$district],
+            'last_updated' => current_time('mysql')
         );
     }
     
@@ -337,9 +338,10 @@ class CFA_Fire_Forecast_Scraper {
                     array('day' => 'Day 3', 'date' => date('Y-m-d', strtotime('+2 days')), 'rating' => 'NO RATING', 'total_fire_ban' => false),
                     array('day' => 'Day 4', 'date' => date('Y-m-d', strtotime('+3 days')), 'rating' => 'NO RATING', 'total_fire_ban' => false)
                 ),
-                'last_updated' => current_time('mysql')
+                'district' => !empty($district) ? ucwords(str_replace('-', ' ', $district)) : 'Unknown District'
             ),
-            'source_url' => 'https://www.cfa.vic.gov.au/rss-feeds'
+            'source_url' => 'https://www.cfa.vic.gov.au/rss-feeds',
+            'last_updated' => current_time('mysql')
         );
     }
 }
