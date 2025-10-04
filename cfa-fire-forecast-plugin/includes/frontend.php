@@ -184,8 +184,8 @@ class CFA_Fire_Forecast_Frontend {
                                             </td>
                                             <?php foreach ($district_data[$district]['forecast'] as $index => $day): ?>
                                             <td class="forecast-cell <?php echo $index === 0 ? 'today' : ''; ?>">
-                                                <div class="cfa-fire-danger-badge rating-<?php echo esc_attr($this->get_rating_class($day['fire_danger_rating'])); ?>">
-                                                    <?php echo esc_html($day['fire_danger_rating']); ?>
+                                                <div class="cfa-fire-danger-badge rating-<?php echo esc_attr($this->get_rating_class($day['rating'])); ?>">
+                                                    <?php echo esc_html($day['rating']); ?>
                                                 </div>
                                                 <?php if ($day['total_fire_ban']): ?>
                                                 <div class="cfa-total-fire-ban-small">🔴 TFB</div>
