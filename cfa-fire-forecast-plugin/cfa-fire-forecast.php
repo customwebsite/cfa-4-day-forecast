@@ -1,13 +1,14 @@
 <?php
 /**
  * Plugin Name: CFA Fire Forecast
- * Plugin URI: https://replit.com/@radsystems/cfa-4-day-forecast
+ * Plugin URI: https://github.com/customwebsite/cfa-4-day-forecast
  * Description: Display CFA (Country Fire Authority) fire danger ratings and forecasts for Victoria, Australia. Shows 4-day fire danger forecast with automatic updates twice daily.
- * Version: 4.1.1
+ * Version: 4.2.0
  * Author: Shaun Haddrill
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: cfa-fire-forecast
+ * GitHub Plugin URI: https://github.com/customwebsite/cfa-4-day-forecast
  */
 
 // Prevent direct access
@@ -16,9 +17,22 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('CFA_FIRE_FORECAST_VERSION', '4.1.1');
+define('CFA_FIRE_FORECAST_VERSION', '4.2.0');
 define('CFA_FIRE_FORECAST_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('CFA_FIRE_FORECAST_PLUGIN_URL', plugin_dir_url(__FILE__));
+
+// Initialize Plugin Update Checker
+require_once CFA_FIRE_FORECAST_PLUGIN_DIR . 'plugin-update-checker/plugin-update-checker.php';
+use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
+
+$cfa_update_checker = PucFactory::buildUpdateChecker(
+    'https://github.com/customwebsite/cfa-4-day-forecast/',
+    __FILE__,
+    'cfa-fire-forecast'
+);
+
+// Set the branch that contains the stable release (default is 'main')
+$cfa_update_checker->setBranch('main');
 
 /**
  * Main plugin class
