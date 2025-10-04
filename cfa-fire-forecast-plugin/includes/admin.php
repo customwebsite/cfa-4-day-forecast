@@ -171,6 +171,30 @@ class CFA_Fire_Forecast_Admin {
             'cfa_fire_forecast',
             'cfa_layout_section'
         );
+        
+        // Logging Settings Section
+        add_settings_section(
+            'cfa_logging_section',
+            __('Logging Settings', 'cfa-fire-forecast'),
+            array($this, 'logging_section_callback'),
+            'cfa_fire_forecast'
+        );
+        
+        add_settings_field(
+            'enable_logging',
+            __('Enable Data Fetch Logging', 'cfa-fire-forecast'),
+            array($this, 'enable_logging_render'),
+            'cfa_fire_forecast',
+            'cfa_logging_section'
+        );
+        
+        add_settings_field(
+            'log_retention',
+            __('Log Retention Period', 'cfa-fire-forecast'),
+            array($this, 'log_retention_render'),
+            'cfa_fire_forecast',
+            'cfa_logging_section'
+        );
     }
     
     /**
@@ -468,6 +492,54 @@ class CFA_Fire_Forecast_Admin {
      */
     public function layout_section_callback() {
         echo __('Configure layout and formatting options.', 'cfa-fire-forecast');
+    }
+    
+    /**
+     * Logging section callback
+     */
+    public function logging_section_callback() {
+        echo __('Configure data fetch logging and retention settings.', 'cfa-fire-forecast');
+    }
+    
+    /**
+     * Logging Settings - Enable Logging
+     */
+    public function enable_logging_render() {
+        $options = get_option('cfa_fire_forecast_options');
+        $enable_logging = isset($options['enable_logging']) ? $options['enable_logging'] : 'yes';
+        ?>
+        <input type='hidden' name='cfa_fire_forecast_options[enable_logging]' value='no'>
+        <label>
+            <input type='checkbox' name='cfa_fire_forecast_options[enable_logging]' value='yes' <?php checked($enable_logging, 'yes'); ?>>
+            <?php _e('Enable logging of data fetch requests', 'cfa-fire-forecast'); ?>
+        </label>
+        <p class="description"><?php _e('Track all data fetch requests with timestamps, status, and response times. Logging can be viewed in the section below.', 'cfa-fire-forecast'); ?></p>
+        <?php
+    }
+    
+    /**
+     * Logging Settings - Log Retention
+     */
+    public function log_retention_render() {
+        $options = get_option('cfa_fire_forecast_options');
+        $retention = isset($options['log_retention']) ? $options['log_retention'] : '28days';
+        ?>
+        <select name='cfa_fire_forecast_options[log_retention]'>
+            <option value='7days' <?php selected($retention, '7days'); ?>>
+                <?php _e('7 Days', 'cfa-fire-forecast'); ?>
+            </option>
+            <option value='28days' <?php selected($retention, '28days'); ?>>
+                <?php _e('28 Days (Default)', 'cfa-fire-forecast'); ?>
+            </option>
+            <option value='1year' <?php selected($retention, '1year'); ?>>
+                <?php _e('1 Year', 'cfa-fire-forecast'); ?>
+            </option>
+            <option value='indefinite' <?php selected($retention, 'indefinite'); ?>>
+                <?php _e('Indefinite (Keep All Logs)', 'cfa-fire-forecast'); ?>
+            </option>
+        </select>
+        <p class="description"><?php _e('How long to keep fetch logs before automatic cleanup. Older logs are deleted when new logs are added.', 'cfa-fire-forecast'); ?></p>
+        <?php
     }
     
     /**

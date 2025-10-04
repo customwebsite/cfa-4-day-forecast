@@ -102,6 +102,14 @@ class CFA_Fire_Forecast_Scraper {
      * Log fetch request for debugging
      */
     private function log_fetch_request($district, $success, $message, $response_time, $url = '') {
+        // Check if logging is enabled
+        $options = get_option('cfa_fire_forecast_options');
+        $enable_logging = isset($options['enable_logging']) ? $options['enable_logging'] : 'yes';
+        
+        if ($enable_logging !== 'yes') {
+            return;
+        }
+        
         $logs = get_option('cfa_fire_forecast_fetch_logs', array());
         
         // Add new log entry
@@ -114,12 +122,48 @@ class CFA_Fire_Forecast_Scraper {
             'url' => $url
         );
         
-        // Keep only last 50 entries
-        if (count($logs) > 50) {
-            $logs = array_slice($logs, -50);
-        }
+        // Apply retention cleanup
+        $retention = isset($options['log_retention']) ? $options['log_retention'] : '28days';
+        $logs = $this->cleanup_old_logs($logs, $retention);
         
         update_option('cfa_fire_forecast_fetch_logs', $logs);
+    }
+    
+    /**
+     * Cleanup old logs based on retention period
+     */
+    private function cleanup_old_logs($logs, $retention) {
+        if ($retention === 'indefinite') {
+            // Keep all logs
+            return $logs;
+        }
+        
+        // Calculate cutoff timestamp based on retention period
+        $cutoff_time = null;
+        switch ($retention) {
+            case '7days':
+                $cutoff_time = strtotime('-7 days');
+                break;
+            case '28days':
+                $cutoff_time = strtotime('-28 days');
+                break;
+            case '1year':
+                $cutoff_time = strtotime('-1 year');
+                break;
+            default:
+                $cutoff_time = strtotime('-28 days');
+        }
+        
+        // Filter logs to keep only those newer than cutoff
+        $filtered_logs = array();
+        foreach ($logs as $log) {
+            $log_timestamp = strtotime($log['timestamp']);
+            if ($log_timestamp >= $cutoff_time) {
+                $filtered_logs[] = $log;
+            }
+        }
+        
+        return $filtered_logs;
     }
     
     /**
