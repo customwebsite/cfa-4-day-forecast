@@ -251,11 +251,13 @@ class CFA_Fire_Forecast_Frontend {
      * Render forecast HTML
      */
     private function render_forecast($data, $atts) {
+        $options = get_option('cfa_fire_forecast_options');
+        $display_format = isset($options['display_format']) ? $options['display_format'] : 'table';
         ?>
-        <div class="cfa-fire-forecast-container" id="cfa-fire-forecast">
+        <div class="cfa-fire-forecast-container cfa-layout-<?php echo esc_attr($display_format); ?>" id="cfa-fire-forecast">
             <div class="cfa-header">
                 <div class="cfa-header-content">
-                    <h2><?php echo esc_html($data['data'][0]['district']); ?></h2>
+                    <h2><?php echo esc_html($data['data']['district']); ?></h2>
                     <p>Fire Danger Ratings and Total Fire Bans - Victoria, Australia</p>
                 </div>
             </div>
@@ -281,7 +283,6 @@ class CFA_Fire_Forecast_Frontend {
                         ?> (Melbourne time)</span>
                     </div>
                     <?php 
-                    $options = get_option('cfa_fire_forecast_options');
                     $show_refresh = isset($options['show_refresh_button']) ? $options['show_refresh_button'] : 'yes';
                     if ($atts['auto_refresh'] === 'true' && $show_refresh === 'yes'): ?>
                     <div class="cfa-status-item">
@@ -295,6 +296,21 @@ class CFA_Fire_Forecast_Frontend {
                         4 Day Fire Danger Forecast
                     </div>
                     <div class="cfa-forecast-content">
+                        <?php if ($display_format === 'compact'): ?>
+                        <div class="cfa-forecast-compact">
+                            <?php foreach ($data['data']['forecast'] as $index => $day): ?>
+                            <div class="cfa-compact-item <?php echo $index === 0 ? 'today' : ''; ?>">
+                                <span class="compact-day"><?php echo esc_html($day['day']); ?> (<?php echo esc_html($day['date']); ?>)</span>
+                                <span class="cfa-fire-danger-badge rating-<?php echo esc_attr($this->get_rating_class($day['rating'])); ?>">
+                                    <?php echo esc_html($day['rating']); ?>
+                                </span>
+                                <?php if ($day['total_fire_ban']): ?>
+                                <span class="cfa-tfb-badge">⚠️ TFB</span>
+                                <?php endif; ?>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php else: ?>
                         <div class="cfa-forecast-grid">
                             <?php foreach ($data['data']['forecast'] as $index => $day): ?>
                             <div class="cfa-forecast-day <?php echo $index === 0 ? 'today' : ''; ?>">
@@ -309,6 +325,7 @@ class CFA_Fire_Forecast_Frontend {
                             </div>
                             <?php endforeach; ?>
                         </div>
+                        <?php endif; ?>
                     </div>
                 </div>
 

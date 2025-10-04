@@ -493,3 +493,84 @@
     display: inline-block;
     margin-top: 5px;
 }
+
+/* Compact Layout Styles */
+.cfa-forecast-compact {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cfa-compact-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 15px;
+    background: #f8f9fa;
+    border-left: 4px solid #ccc;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.cfa-compact-item:hover {
+    background: #e9ecef;
+    transform: translateX(5px);
+}
+
+.cfa-compact-item.today {
+    background: #fff3cd;
+    border-left-color: #ffc107;
+}
+
+.compact-day {
+    flex: 1;
+    font-weight: bold;
+    color: #333;
+}
+
+.cfa-compact-item .cfa-fire-danger-badge {
+    font-size: 0.85em;
+    padding: 6px 12px;
+}
+
+.cfa-tfb-badge {
+    background: #dc3545;
+    color: white;
+    font-size: 0.75em;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+/* Layout-specific container adjustments */
+.cfa-layout-cards .cfa-forecast-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.cfa-layout-table .cfa-forecast-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+@media (max-width: 768px) {
+    .cfa-layout-table .cfa-forecast-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .cfa-layout-table .cfa-forecast-grid,
+    .cfa-layout-cards .cfa-forecast-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .cfa-compact-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}

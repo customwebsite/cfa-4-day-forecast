@@ -318,6 +318,7 @@ class CFA_Fire_Forecast_Admin {
         $options = get_option('cfa_fire_forecast_options');
         $show_button = isset($options['show_refresh_button']) ? $options['show_refresh_button'] : 'yes';
         ?>
+        <input type='hidden' name='cfa_fire_forecast_options[show_refresh_button]' value='no'>
         <label>
             <input type='checkbox' name='cfa_fire_forecast_options[show_refresh_button]' value='yes' <?php checked($show_button, 'yes'); ?>>
             <?php _e('Display manual refresh button', 'cfa-fire-forecast'); ?>
@@ -392,13 +393,18 @@ class CFA_Fire_Forecast_Admin {
         $options = get_option('cfa_fire_forecast_options');
         $color = isset($options['table_header_color']) ? $options['table_header_color'] : '#004080';
         ?>
-        <input type='color' name='cfa_fire_forecast_options[table_header_color]' value='<?php echo esc_attr($color); ?>'>
-        <input type='text' name='cfa_fire_forecast_options[table_header_color_text]' value='<?php echo esc_attr($color); ?>' readonly style="width: 100px; margin-left: 10px;">
+        <input type='color' name='cfa_fire_forecast_options[table_header_color]' id='cfa_header_color' value='<?php echo esc_attr($color); ?>'>
+        <input type='text' name='cfa_fire_forecast_options[table_header_color_text]' id='cfa_header_color_text' value='<?php echo esc_attr($color); ?>' readonly style="width: 100px; margin-left: 10px;">
+        <button type='button' class='button' onclick='cfaResetHeaderColor()' style="margin-left: 10px;">Reset to Default</button>
         <p class="description"><?php _e('Background color for table headers. Default: #004080 (CFA Blue)', 'cfa-fire-forecast'); ?></p>
         <script>
-        document.querySelector('input[name="cfa_fire_forecast_options[table_header_color]"]').addEventListener('input', function() {
-            document.querySelector('input[name="cfa_fire_forecast_options[table_header_color_text]"]').value = this.value;
+        document.getElementById('cfa_header_color').addEventListener('input', function() {
+            document.getElementById('cfa_header_color_text').value = this.value;
         });
+        function cfaResetHeaderColor() {
+            document.getElementById('cfa_header_color').value = '#004080';
+            document.getElementById('cfa_header_color_text').value = '#004080';
+        }
         </script>
         <?php
     }
