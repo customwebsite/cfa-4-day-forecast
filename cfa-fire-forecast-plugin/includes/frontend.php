@@ -166,6 +166,7 @@ class CFA_Fire_Forecast_Frontend {
                         4 Day Fire Danger Forecast - <?php echo count($districts); ?> Districts
                     </div>
                     <div class="cfa-forecast-content">
+                        <?php if ($display_format === 'table'): ?>
                         <div class="cfa-multi-district-table">
                             <table class="cfa-forecast-table">
                                 <thead>
@@ -207,6 +208,54 @@ class CFA_Fire_Forecast_Frontend {
                                 </tbody>
                             </table>
                         </div>
+                        <?php elseif ($display_format === 'cards'): ?>
+                        <div class="cfa-multi-district-cards">
+                            <?php foreach ($districts as $district): 
+                                if (isset($district_data[$district]) && isset($district_data[$district]['forecast'])): ?>
+                                <div class="cfa-district-card">
+                                    <h3 class="district-card-title"><?php echo esc_html(ucwords(str_replace('-', ' ', $district))); ?></h3>
+                                    <div class="cfa-forecast-grid">
+                                        <?php foreach ($district_data[$district]['forecast'] as $index => $day): ?>
+                                        <div class="cfa-forecast-day <?php echo $index === 0 ? 'today' : ''; ?>">
+                                            <div class="cfa-day-header"><?php echo esc_html($day['day']); ?></div>
+                                            <div class="cfa-day-date"><?php echo esc_html($day['date']); ?></div>
+                                            <div class="cfa-fire-danger-badge rating-<?php echo esc_attr($this->get_rating_class($day['rating'])); ?>">
+                                                <?php echo esc_html($day['rating']); ?>
+                                            </div>
+                                            <?php if ($day['total_fire_ban']): ?>
+                                            <div class="cfa-total-fire-ban">⚠️ TOTAL FIRE BAN</div>
+                                            <?php endif; ?>
+                                        </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                                <?php endif;
+                            endforeach; ?>
+                        </div>
+                        <?php else: // compact ?>
+                        <div class="cfa-multi-district-compact">
+                            <?php foreach ($districts as $district): 
+                                if (isset($district_data[$district]) && isset($district_data[$district]['forecast'])): ?>
+                                <div class="cfa-district-compact-section">
+                                    <h3 class="district-compact-title"><?php echo esc_html(ucwords(str_replace('-', ' ', $district))); ?></h3>
+                                    <div class="cfa-compact-list">
+                                        <?php foreach ($district_data[$district]['forecast'] as $index => $day): ?>
+                                        <div class="cfa-compact-item <?php echo $index === 0 ? 'today' : ''; ?>">
+                                            <span class="compact-day"><?php echo esc_html($day['day']); ?> (<?php echo esc_html($day['date']); ?>)</span>
+                                            <span class="cfa-fire-danger-badge rating-<?php echo esc_attr($this->get_rating_class($day['rating'])); ?>">
+                                                <?php echo esc_html($day['rating']); ?>
+                                            </span>
+                                            <?php if ($day['total_fire_ban']): ?>
+                                            <span class="cfa-tfb-badge">⚠️ TFB</span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                                <?php endif;
+                            endforeach; ?>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
 

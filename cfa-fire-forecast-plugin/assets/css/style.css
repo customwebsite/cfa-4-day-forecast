@@ -543,6 +543,68 @@
     white-space: nowrap;
 }
 
+/* Multi-District Card Layout */
+.cfa-multi-district-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    margin: 20px 0;
+}
+
+.cfa-district-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.cfa-district-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+.district-card-title {
+    color: #003366;
+    font-size: 1.3em;
+    margin: 0 0 15px 0;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #004080;
+}
+
+.cfa-district-card .cfa-forecast-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+}
+
+/* Multi-District Compact Layout */
+.cfa-multi-district-compact {
+    margin: 20px 0;
+}
+
+.cfa-district-compact-section {
+    background: white;
+    border-radius: 8px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.district-compact-title {
+    color: #003366;
+    font-size: 1.2em;
+    margin: 0 0 12px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #004080;
+}
+
+.cfa-district-compact-section .cfa-compact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 /* Layout-specific container adjustments */
 .cfa-layout-cards .cfa-forecast-grid {
     display: grid;
