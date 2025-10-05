@@ -1,0 +1,104 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Extract version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+      
+      - name: Create plugin zip
+        run: |
+          cd ${{ github.workspace }}
+          zip -r cfa-fire-forecast-plugin.zip cfa-fire-forecast-plugin/ \
+            -x "*.git*" \
+            -x "*node_modules*" \
+            -x "*.DS_Store" \
+            -x "*__pycache__*" \
+            -x "*.pyc"
+          
+          # Get zip file size
+          ZIP_SIZE=$(ls -lh cfa-fire-forecast-plugin.zip | awk '{print $5}')
+          echo "Created cfa-fire-forecast-plugin.zip ($ZIP_SIZE)"
+      
+      - name: Create Release Notes
+        id: release_notes
+        run: |
+          cat > release_notes.md << 'EOF'
+          ## CFA Fire Forecast Plugin v${{ steps.get_version.outputs.VERSION }}
+          
+          ### Download
+          
+          Download the plugin zip file attached below and install via WordPress admin:
+          **Plugins → Add New → Upload Plugin**
+          
+          ### Installation
+          
+          1. Download `cfa-fire-forecast-plugin.zip` from the assets below
+          2. In WordPress admin, go to **Plugins → Add New**
+          3. Click **Upload Plugin**
+          4. Choose the downloaded zip file
+          5. Click **Install Now**
+          6. Click **Activate Plugin**
+          
+          ### Features
+          
+          - 4-Day Fire Danger Forecast from official CFA RSS feeds
+          - Single and multi-district viewing
+          - Three layout options: Table, Cards, Compact
+          - Automatic updates twice daily (6 AM & 6 PM Melbourne time)
+          - Customizable display settings
+          - Request logging with configurable retention
+          - Automatic plugin updates from GitHub
+          
+          ### Shortcode Examples
+          
+          ```
+          [cfa_fire_forecast]
+          [cfa_fire_forecast district="south-west-fire-district"]
+          [cfa_fire_forecast districts="north-central-fire-district,south-west-fire-district"]
+          [cfa_fire_forecast layout="cards"]
+          [cfa_fire_forecast layout="compact"]
+          ```
+          
+          ### Requirements
+          
+          - WordPress 5.0 or higher
+          - PHP 7.4 or higher
+          
+          ### Support
+          
+          For issues, questions, or feature requests, please visit the [GitHub repository](https://github.com/customwebsite/cfa-4-day-forecast).
+          EOF
+          
+          echo "Release notes created"
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: v${{ steps.get_version.outputs.VERSION }}
+          body_path: release_notes.md
+          files: cfa-fire-forecast-plugin.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Release Summary
+        run: |
+          echo "✅ Release v${{ steps.get_version.outputs.VERSION }} created successfully!"
+          echo "📦 Plugin zip file uploaded as release asset"
+          echo "🔗 View release: https://github.com/${{ github.repository }}/releases/tag/v${{ steps.get_version.outputs.VERSION }}"
