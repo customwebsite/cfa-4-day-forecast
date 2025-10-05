@@ -1,12 +1,12 @@
 === CFA Fire Forecast ===
-Contributors: yourname
+Contributors: Shaun Haddrill
 Tags: fire, forecast, cfa, australia, weather, emergency, victoria
 Requires at least: 5.0
 Tested up to: 6.4
 Requires PHP: 7.4
 Stable tag: 1.0.0
-License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
+License: MiT or later
+License URI: https://mit-license.org/
 
 Display CFA (Country Fire Authority) fire danger ratings and forecasts for Victoria, Australia with automatic twice-daily updates.
 
