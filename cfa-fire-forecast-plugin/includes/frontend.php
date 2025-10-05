@@ -201,7 +201,11 @@ class CFA_Fire_Forecast_Frontend {
                     </div>
                 </div>
 
-                <?php if ($atts['show_scale'] === 'true'): ?>
+                <?php 
+                $options = get_option('cfa_fire_forecast_options');
+                $show_rating_scale = isset($options['show_rating_scale']) ? $options['show_rating_scale'] : 'yes';
+                if ($atts['show_scale'] === 'true' && $show_rating_scale === 'yes'): 
+                ?>
                 <div class="cfa-fire-danger-scale">
                     <h3>Fire Danger Ratings Scale</h3>
                     <p>Understanding what each fire danger rating means and what you should do:</p>
@@ -329,7 +333,10 @@ class CFA_Fire_Forecast_Frontend {
                     </div>
                 </div>
 
-                <?php if ($atts['show_scale'] === 'true'): ?>
+                <?php 
+                $show_rating_scale = isset($options['show_rating_scale']) ? $options['show_rating_scale'] : 'yes';
+                if ($atts['show_scale'] === 'true' && $show_rating_scale === 'yes'): 
+                ?>
                 <div class="cfa-fire-danger-scale">
                     <h3>Fire Danger Ratings Scale</h3>
                     <p>Understanding what each fire danger rating means and what you should do:</p>
