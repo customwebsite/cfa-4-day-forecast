@@ -297,6 +297,7 @@ class CFA_Fire_Forecast_Admin {
         $options = get_option('cfa_fire_forecast_options');
         $show_scale = isset($options['show_rating_scale']) ? $options['show_rating_scale'] : 'yes';
         ?>
+        <input type='hidden' name='cfa_fire_forecast_options[show_rating_scale]' value='no'>
         <label>
             <input type='checkbox' name='cfa_fire_forecast_options[show_rating_scale]' value='yes' <?php checked($show_scale, 'yes'); ?>>
             <?php _e('Display fire danger ratings scale legend', 'cfa-fire-forecast'); ?>
@@ -312,6 +313,7 @@ class CFA_Fire_Forecast_Admin {
         $options = get_option('cfa_fire_forecast_options');
         $show_tfb = isset($options['show_tfb_indicator']) ? $options['show_tfb_indicator'] : 'yes';
         ?>
+        <input type='hidden' name='cfa_fire_forecast_options[show_tfb_indicator]' value='no'>
         <label>
             <input type='checkbox' name='cfa_fire_forecast_options[show_tfb_indicator]' value='yes' <?php checked($show_tfb, 'yes'); ?>>
             <?php _e('Display Total Fire Ban indicator', 'cfa-fire-forecast'); ?>
@@ -327,6 +329,7 @@ class CFA_Fire_Forecast_Admin {
         $options = get_option('cfa_fire_forecast_options');
         $show_updated = isset($options['show_last_updated']) ? $options['show_last_updated'] : 'yes';
         ?>
+        <input type='hidden' name='cfa_fire_forecast_options[show_last_updated]' value='no'>
         <label>
             <input type='checkbox' name='cfa_fire_forecast_options[show_last_updated]' value='yes' <?php checked($show_updated, 'yes'); ?>>
             <?php _e('Display last updated timestamp', 'cfa-fire-forecast'); ?>
@@ -465,6 +468,7 @@ class CFA_Fire_Forecast_Admin {
         $options = get_option('cfa_fire_forecast_options');
         $responsive = isset($options['responsive_breakpoint']) ? $options['responsive_breakpoint'] : 'yes';
         ?>
+        <input type='hidden' name='cfa_fire_forecast_options[responsive_breakpoint]' value='no'>
         <label>
             <input type='checkbox' name='cfa_fire_forecast_options[responsive_breakpoint]' value='yes' <?php checked($responsive, 'yes'); ?>>
             <?php _e('Enable mobile responsive layout', 'cfa-fire-forecast'); ?>
