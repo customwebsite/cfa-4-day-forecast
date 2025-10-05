@@ -562,8 +562,17 @@ class CFA_Fire_Forecast_Admin {
                 <h4><?php _e('Shortcode Options:', 'cfa-fire-forecast'); ?></h4>
                 <ul>
                     <li><code>[cfa_fire_forecast district="north-central-fire-district"]</code> - <?php _e('Specify a different district', 'cfa-fire-forecast'); ?></li>
+                    <li><code>[cfa_fire_forecast districts="north-central-fire-district,south-west-fire-district"]</code> - <?php _e('Display multiple districts in table view', 'cfa-fire-forecast'); ?></li>
+                    <li><code>[cfa_fire_forecast layout="cards"]</code> - <?php _e('Override display format (options: table, cards, compact)', 'cfa-fire-forecast'); ?></li>
                     <li><code>[cfa_fire_forecast show_scale="false"]</code> - <?php _e('Hide the fire danger ratings scale', 'cfa-fire-forecast'); ?></li>
                     <li><code>[cfa_fire_forecast auto_refresh="false"]</code> - <?php _e('Disable auto-refresh functionality', 'cfa-fire-forecast'); ?></li>
+                </ul>
+                
+                <h4><?php _e('Layout Examples:', 'cfa-fire-forecast'); ?></h4>
+                <ul>
+                    <li><code>[cfa_fire_forecast layout="cards"]</code> - <?php _e('Display as responsive cards', 'cfa-fire-forecast'); ?></li>
+                    <li><code>[cfa_fire_forecast layout="table"]</code> - <?php _e('Display as table view', 'cfa-fire-forecast'); ?></li>
+                    <li><code>[cfa_fire_forecast layout="compact"]</code> - <?php _e('Display as compact horizontal list', 'cfa-fire-forecast'); ?></li>
                 </ul>
             </div>
             

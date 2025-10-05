@@ -114,8 +114,16 @@ class CFA_Fire_Forecast_Frontend {
     private function render_multi_district_forecast($data, $atts) {
         $districts = $data['districts'];
         $district_data = $data['data'];
+        $options = get_option('cfa_fire_forecast_options');
+        
+        // Use shortcode layout if specified, otherwise use admin setting
+        if (!empty($atts['layout']) && in_array($atts['layout'], array('table', 'cards', 'compact'))) {
+            $display_format = $atts['layout'];
+        } else {
+            $display_format = isset($options['display_format']) ? $options['display_format'] : 'table';
+        }
         ?>
-        <div class="cfa-fire-forecast-container cfa-multi-district" id="cfa-fire-forecast" data-districts="<?php echo esc_attr(implode(',', $districts)); ?>" data-multi="true">
+        <div class="cfa-fire-forecast-container cfa-multi-district cfa-layout-<?php echo esc_attr($display_format); ?>" id="cfa-fire-forecast" data-districts="<?php echo esc_attr(implode(',', $districts)); ?>" data-multi="true">
             <div class="cfa-header">
                 <div class="cfa-header-content">
                     <h2>Multi-District Fire Danger Forecast</h2>
