@@ -17,7 +17,7 @@ A WordPress plugin that displays real-time fire danger forecasts for Victoria, A
 
 Download the latest version:
 
-**[Download CFA Fire Forecast Plugin (v4.2.0)](https://github.com/customwebsite/cfa-4-day-forecast/raw/main/cfa-fire-forecast-plugin.zip)**
+**[Download CFA Fire Forecast Plugin (v4.3.0)](https://github.com/customwebsite/cfa-4-day-forecast/raw/main/cfa-fire-forecast-plugin.zip)**
 
 ## Installation
 
@@ -71,8 +71,16 @@ Display multiple districts in a side-by-side comparison table:
 
 - `district` - Specify a single fire district
 - `districts` - Comma-separated list of districts for multi-district table view
+- `layout` - Display format: `table`, `cards`, or `compact` (overrides admin setting)
 - `show_scale` - Show/hide the fire danger rating scale legend (default: `true`)
 - `auto_refresh` - Enable/disable manual refresh button (default: `true`)
+
+**Layout Examples:**
+```
+[cfa_fire_forecast layout="cards"]
+[cfa_fire_forecast layout="table"]
+[cfa_fire_forecast layout="compact"]
+```
 
 ## Plugin Settings
 
