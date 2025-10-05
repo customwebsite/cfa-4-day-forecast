@@ -50,7 +50,8 @@ class CFA_Fire_Forecast_Frontend {
             'district' => 'north-central-fire-district',
             'districts' => '',
             'show_scale' => 'true',
-            'auto_refresh' => 'true'
+            'auto_refresh' => 'true',
+            'layout' => '' // Options: table, cards, compact (empty = use admin setting)
         ), $atts);
         
         // Determine if multiple districts requested
@@ -256,7 +257,13 @@ class CFA_Fire_Forecast_Frontend {
      */
     private function render_forecast($data, $atts) {
         $options = get_option('cfa_fire_forecast_options');
-        $display_format = isset($options['display_format']) ? $options['display_format'] : 'table';
+        
+        // Use shortcode layout if specified, otherwise use admin setting
+        if (!empty($atts['layout']) && in_array($atts['layout'], array('table', 'cards', 'compact'))) {
+            $display_format = $atts['layout'];
+        } else {
+            $display_format = isset($options['display_format']) ? $options['display_format'] : 'table';
+        }
         ?>
         <div class="cfa-fire-forecast-container cfa-layout-<?php echo esc_attr($display_format); ?>" id="cfa-fire-forecast">
             <div class="cfa-header">
