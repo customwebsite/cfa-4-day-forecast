@@ -3,7 +3,7 @@
  * Plugin Name: CFA Fire Forecast
  * Plugin URI: https://github.com/customwebsite/cfa-4-day-forecast
  * Description: Display CFA (Country Fire Authority) fire danger ratings and forecasts for Victoria, Australia. Shows 4-day fire danger forecast with automatic updates twice daily.
- * Version: 4.5.0
+ * Version: 4.5.1
  * Author: Shaun Haddrill
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('CFA_FIRE_FORECAST_VERSION', '4.5.0');
+define('CFA_FIRE_FORECAST_VERSION', '4.5.1');
 define('CFA_FIRE_FORECAST_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('CFA_FIRE_FORECAST_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -30,6 +30,9 @@ $cfa_update_checker = PucFactory::buildUpdateChecker(
     __FILE__,
     'cfa-fire-forecast'
 );
+
+// Enable release assets (use uploaded zip file instead of source code)
+$cfa_update_checker->getVcsApi()->enableReleaseAssets();
 
 // Set the branch that contains the stable release (default is 'main')
 $cfa_update_checker->setBranch('main');
