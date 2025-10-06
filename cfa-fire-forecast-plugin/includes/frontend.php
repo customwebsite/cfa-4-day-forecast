@@ -122,8 +122,11 @@ class CFA_Fire_Forecast_Frontend {
         } else {
             $display_format = isset($options['display_format']) ? $options['display_format'] : 'table';
         }
+        
+        // Get color scheme
+        $color_scheme = isset($options['color_scheme']) ? $options['color_scheme'] : 'official';
         ?>
-        <div class="cfa-fire-forecast-container cfa-multi-district cfa-layout-<?php echo esc_attr($display_format); ?>" id="cfa-fire-forecast" data-districts="<?php echo esc_attr(implode(',', $districts)); ?>" data-multi="true">
+        <div class="cfa-fire-forecast-container cfa-multi-district cfa-layout-<?php echo esc_attr($display_format); ?> cfa-scheme-<?php echo esc_attr($color_scheme); ?>" id="cfa-fire-forecast" data-districts="<?php echo esc_attr(implode(',', $districts)); ?>" data-multi="true">
             <div class="cfa-header">
                 <div class="cfa-header-content">
                     <h2>Multi-District Fire Danger Forecast</h2>
@@ -321,8 +324,11 @@ class CFA_Fire_Forecast_Frontend {
         } else {
             $display_format = isset($options['display_format']) ? $options['display_format'] : 'table';
         }
+        
+        // Get color scheme
+        $color_scheme = isset($options['color_scheme']) ? $options['color_scheme'] : 'official';
         ?>
-        <div class="cfa-fire-forecast-container cfa-layout-<?php echo esc_attr($display_format); ?>" id="cfa-fire-forecast">
+        <div class="cfa-fire-forecast-container cfa-layout-<?php echo esc_attr($display_format); ?> cfa-scheme-<?php echo esc_attr($color_scheme); ?>" id="cfa-fire-forecast">
             <div class="cfa-header">
                 <div class="cfa-header-content">
                     <h2><?php echo esc_html($data['data']['district']); ?></h2>

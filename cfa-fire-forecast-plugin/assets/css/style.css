@@ -214,6 +214,110 @@
     color: white;
 }
 
+/* High Contrast Color Scheme */
+.cfa-scheme-high_contrast .rating-no-rating {
+    background-color: #000000;
+    color: #FFFFFF;
+    border: 2px solid #FFFFFF;
+}
+
+.cfa-scheme-high_contrast .rating-low-moderate {
+    background-color: #00FF00;
+    color: #000000;
+    border: 3px solid #000000;
+}
+
+.cfa-scheme-high_contrast .rating-moderate {
+    background-color: #FFFF00;
+    color: #000000;
+    border: 3px solid #000000;
+}
+
+.cfa-scheme-high_contrast .rating-high {
+    background-color: #FF8800;
+    color: #000000;
+    border: 3px solid #000000;
+}
+
+.cfa-scheme-high_contrast .rating-extreme {
+    background-color: #FF0000;
+    color: #FFFFFF;
+    border: 3px solid #000000;
+}
+
+.cfa-scheme-high_contrast .rating-catastrophic {
+    background-color: #8B00FF;
+    color: #FFFFFF;
+    border: 3px solid #000000;
+}
+
+.cfa-scheme-high_contrast .cfa-header {
+    background: #000000;
+    border-bottom: 4px solid #FFFFFF;
+}
+
+.cfa-scheme-high_contrast .cfa-header h2,
+.cfa-scheme-high_contrast .cfa-header p {
+    color: #FFFFFF;
+}
+
+.cfa-scheme-high_contrast .cfa-total-fire-ban {
+    background: #FF0000;
+    color: #FFFFFF;
+    border: 3px solid #000000;
+}
+
+.cfa-scheme-high_contrast .cfa-total-fire-ban-small {
+    background: #FF0000;
+    color: #FFFFFF;
+    border: 2px solid #000000;
+}
+
+/* Minimal/Grayscale Color Scheme */
+.cfa-scheme-minimal .rating-no-rating {
+    background-color: #f5f5f5;
+    color: #333333;
+}
+
+.cfa-scheme-minimal .rating-low-moderate {
+    background-color: #e0e0e0;
+    color: #000000;
+}
+
+.cfa-scheme-minimal .rating-moderate {
+    background-color: #bdbdbd;
+    color: #000000;
+}
+
+.cfa-scheme-minimal .rating-high {
+    background-color: #9e9e9e;
+    color: #FFFFFF;
+}
+
+.cfa-scheme-minimal .rating-extreme {
+    background-color: #616161;
+    color: #FFFFFF;
+}
+
+.cfa-scheme-minimal .rating-catastrophic {
+    background-color: #212121;
+    color: #FFFFFF;
+}
+
+.cfa-scheme-minimal .cfa-header {
+    background: linear-gradient(135deg, #757575 0%, #424242 100%);
+}
+
+.cfa-scheme-minimal .cfa-total-fire-ban {
+    background: #424242;
+    color: #FFFFFF;
+}
+
+.cfa-scheme-minimal .cfa-total-fire-ban-small {
+    background: #424242;
+    color: #FFFFFF;
+}
+
 .cfa-fire-danger-scale {
     background: white;
     border: 1px solid #ddd;
