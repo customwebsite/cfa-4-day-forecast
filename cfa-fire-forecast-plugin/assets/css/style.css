@@ -214,6 +214,57 @@
     color: white;
 }
 
+/* Official CFA Colors - Tables */
+.cfa-forecast-table tbody tr.low-moderate {
+    background-color: #28a745;
+    color: white;
+}
+
+.cfa-forecast-table tbody tr.moderate {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.cfa-forecast-table tbody tr.high {
+    background-color: #fd7e14;
+    color: white;
+}
+
+.cfa-forecast-table tbody tr.extreme {
+    background-color: #dc3545;
+    color: white;
+}
+
+.cfa-forecast-table tbody tr.catastrophic {
+    background-color: #6f2c91;
+    color: white;
+}
+
+/* Official CFA Colors - Cards and Compact */
+.cfa-forecast-card.low-moderate { border-color: #28a745; }
+.cfa-forecast-card.low-moderate .cfa-card-rating { background-color: #28a745; color: white; }
+.cfa-forecast-card.moderate { border-color: #ffc107; }
+.cfa-forecast-card.moderate .cfa-card-rating { background-color: #ffc107; color: #212529; }
+.cfa-forecast-card.high { border-color: #fd7e14; }
+.cfa-forecast-card.high .cfa-card-rating { background-color: #fd7e14; color: white; }
+.cfa-forecast-card.extreme { border-color: #dc3545; }
+.cfa-forecast-card.extreme .cfa-card-rating { background-color: #dc3545; color: white; }
+.cfa-forecast-card.catastrophic { border-color: #6f2c91; }
+.cfa-forecast-card.catastrophic .cfa-card-rating { background-color: #6f2c91; color: white; }
+
+.cfa-compact-day.low-moderate { background-color: #28a745; color: white; }
+.cfa-compact-day.moderate { background-color: #ffc107; color: #212529; }
+.cfa-compact-day.high { background-color: #fd7e14; color: white; }
+.cfa-compact-day.extreme { background-color: #dc3545; color: white; }
+.cfa-compact-day.catastrophic { background-color: #6f2c91; color: white; }
+
+/* Official CFA Colors - Fire Danger Scale */
+.cfa-scale-item.low-moderate { background-color: #28a745; color: white; }
+.cfa-scale-item.moderate { background-color: #ffc107; color: #212529; }
+.cfa-scale-item.high { background-color: #fd7e14; color: white; }
+.cfa-scale-item.extreme { background-color: #dc3545; color: white; }
+.cfa-scale-item.catastrophic { background-color: #6f2c91; color: white; }
+
 /* High Contrast Color Scheme */
 .cfa-scheme-high_contrast .rating-no-rating {
     background-color: #000000;
@@ -273,6 +324,57 @@
     border: 2px solid #000000;
 }
 
+/* High Contrast - Tables */
+.cfa-scheme-high_contrast .cfa-forecast-table tbody tr.low-moderate {
+    background-color: #00FF00;
+    color: #000000;
+}
+
+.cfa-scheme-high_contrast .cfa-forecast-table tbody tr.moderate {
+    background-color: #FFFF00;
+    color: #000000;
+}
+
+.cfa-scheme-high_contrast .cfa-forecast-table tbody tr.high {
+    background-color: #FF8800;
+    color: #000000;
+}
+
+.cfa-scheme-high_contrast .cfa-forecast-table tbody tr.extreme {
+    background-color: #FF0000;
+    color: #FFFFFF;
+}
+
+.cfa-scheme-high_contrast .cfa-forecast-table tbody tr.catastrophic {
+    background-color: #8B00FF;
+    color: #FFFFFF;
+}
+
+/* High Contrast - Cards and Compact */
+.cfa-scheme-high_contrast .cfa-forecast-card.low-moderate { border-color: #00FF00; }
+.cfa-scheme-high_contrast .cfa-forecast-card.low-moderate .cfa-card-rating { background-color: #00FF00; color: #000000; border: 3px solid #000000; }
+.cfa-scheme-high_contrast .cfa-forecast-card.moderate { border-color: #FFFF00; }
+.cfa-scheme-high_contrast .cfa-forecast-card.moderate .cfa-card-rating { background-color: #FFFF00; color: #000000; border: 3px solid #000000; }
+.cfa-scheme-high_contrast .cfa-forecast-card.high { border-color: #FF8800; }
+.cfa-scheme-high_contrast .cfa-forecast-card.high .cfa-card-rating { background-color: #FF8800; color: #000000; border: 3px solid #000000; }
+.cfa-scheme-high_contrast .cfa-forecast-card.extreme { border-color: #FF0000; }
+.cfa-scheme-high_contrast .cfa-forecast-card.extreme .cfa-card-rating { background-color: #FF0000; color: #FFFFFF; border: 3px solid #000000; }
+.cfa-scheme-high_contrast .cfa-forecast-card.catastrophic { border-color: #8B00FF; }
+.cfa-scheme-high_contrast .cfa-forecast-card.catastrophic .cfa-card-rating { background-color: #8B00FF; color: #FFFFFF; border: 3px solid #000000; }
+
+.cfa-scheme-high_contrast .cfa-compact-day.low-moderate { background-color: #00FF00; color: #000000; border: 3px solid #000000; }
+.cfa-scheme-high_contrast .cfa-compact-day.moderate { background-color: #FFFF00; color: #000000; border: 3px solid #000000; }
+.cfa-scheme-high_contrast .cfa-compact-day.high { background-color: #FF8800; color: #000000; border: 3px solid #000000; }
+.cfa-scheme-high_contrast .cfa-compact-day.extreme { background-color: #FF0000; color: #FFFFFF; border: 3px solid #000000; }
+.cfa-scheme-high_contrast .cfa-compact-day.catastrophic { background-color: #8B00FF; color: #FFFFFF; border: 3px solid #000000; }
+
+/* High Contrast - Fire Danger Scale */
+.cfa-scheme-high_contrast .cfa-scale-item.low-moderate { background-color: #00FF00; color: #000000; border: 3px solid #000000; }
+.cfa-scheme-high_contrast .cfa-scale-item.moderate { background-color: #FFFF00; color: #000000; border: 3px solid #000000; }
+.cfa-scheme-high_contrast .cfa-scale-item.high { background-color: #FF8800; color: #000000; border: 3px solid #000000; }
+.cfa-scheme-high_contrast .cfa-scale-item.extreme { background-color: #FF0000; color: #FFFFFF; border: 3px solid #000000; }
+.cfa-scheme-high_contrast .cfa-scale-item.catastrophic { background-color: #8B00FF; color: #FFFFFF; border: 3px solid #000000; }
+
 /* Minimal/Grayscale Color Scheme */
 .cfa-scheme-minimal .rating-no-rating {
     background-color: #f5f5f5;
@@ -317,6 +419,57 @@
     background: #424242;
     color: #FFFFFF;
 }
+
+/* Minimal - Tables */
+.cfa-scheme-minimal .cfa-forecast-table tbody tr.low-moderate {
+    background-color: #e0e0e0;
+    color: #000000;
+}
+
+.cfa-scheme-minimal .cfa-forecast-table tbody tr.moderate {
+    background-color: #bdbdbd;
+    color: #000000;
+}
+
+.cfa-scheme-minimal .cfa-forecast-table tbody tr.high {
+    background-color: #9e9e9e;
+    color: #FFFFFF;
+}
+
+.cfa-scheme-minimal .cfa-forecast-table tbody tr.extreme {
+    background-color: #616161;
+    color: #FFFFFF;
+}
+
+.cfa-scheme-minimal .cfa-forecast-table tbody tr.catastrophic {
+    background-color: #212121;
+    color: #FFFFFF;
+}
+
+/* Minimal - Cards and Compact */
+.cfa-scheme-minimal .cfa-forecast-card.low-moderate { border-color: #e0e0e0; }
+.cfa-scheme-minimal .cfa-forecast-card.low-moderate .cfa-card-rating { background-color: #e0e0e0; color: #000000; }
+.cfa-scheme-minimal .cfa-forecast-card.moderate { border-color: #bdbdbd; }
+.cfa-scheme-minimal .cfa-forecast-card.moderate .cfa-card-rating { background-color: #bdbdbd; color: #000000; }
+.cfa-scheme-minimal .cfa-forecast-card.high { border-color: #9e9e9e; }
+.cfa-scheme-minimal .cfa-forecast-card.high .cfa-card-rating { background-color: #9e9e9e; color: #FFFFFF; }
+.cfa-scheme-minimal .cfa-forecast-card.extreme { border-color: #616161; }
+.cfa-scheme-minimal .cfa-forecast-card.extreme .cfa-card-rating { background-color: #616161; color: #FFFFFF; }
+.cfa-scheme-minimal .cfa-forecast-card.catastrophic { border-color: #212121; }
+.cfa-scheme-minimal .cfa-forecast-card.catastrophic .cfa-card-rating { background-color: #212121; color: #FFFFFF; }
+
+.cfa-scheme-minimal .cfa-compact-day.low-moderate { background-color: #e0e0e0; color: #000000; }
+.cfa-scheme-minimal .cfa-compact-day.moderate { background-color: #bdbdbd; color: #000000; }
+.cfa-scheme-minimal .cfa-compact-day.high { background-color: #9e9e9e; color: #FFFFFF; }
+.cfa-scheme-minimal .cfa-compact-day.extreme { background-color: #616161; color: #FFFFFF; }
+.cfa-scheme-minimal .cfa-compact-day.catastrophic { background-color: #212121; color: #FFFFFF; }
+
+/* Minimal - Fire Danger Scale */
+.cfa-scheme-minimal .cfa-scale-item.low-moderate { background-color: #e0e0e0; color: #000000; }
+.cfa-scheme-minimal .cfa-scale-item.moderate { background-color: #bdbdbd; color: #000000; }
+.cfa-scheme-minimal .cfa-scale-item.high { background-color: #9e9e9e; color: #FFFFFF; }
+.cfa-scheme-minimal .cfa-scale-item.extreme { background-color: #616161; color: #FFFFFF; }
+.cfa-scheme-minimal .cfa-scale-item.catastrophic { background-color: #212121; color: #FFFFFF; }
 
 .cfa-fire-danger-scale {
     background: white;

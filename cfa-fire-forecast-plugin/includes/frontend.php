@@ -27,6 +27,15 @@ class CFA_Fire_Forecast_Frontend {
             CFA_FIRE_FORECAST_VERSION
         );
         
+        // Add inline custom colors CSS if custom scheme is selected
+        $options = get_option('cfa_fire_forecast_options');
+        $color_scheme = isset($options['color_scheme']) ? $options['color_scheme'] : 'official';
+        
+        if ($color_scheme === 'custom') {
+            $custom_css = $this->generate_custom_colors_css($options);
+            wp_add_inline_style('cfa-fire-forecast-style', $custom_css);
+        }
+        
         wp_enqueue_script(
             'cfa-fire-forecast-script',
             CFA_FIRE_FORECAST_PLUGIN_URL . 'assets/js/script.js',
@@ -40,6 +49,105 @@ class CFA_Fire_Forecast_Frontend {
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('cfa_fire_forecast_nonce')
         ));
+    }
+    
+    /**
+     * Generate custom colors CSS
+     */
+    private function generate_custom_colors_css($options) {
+        $colors = array(
+            'low_moderate' => sanitize_hex_color(isset($options['custom_color_low_moderate']) ? $options['custom_color_low_moderate'] : '#28a745'),
+            'moderate' => sanitize_hex_color(isset($options['custom_color_moderate']) ? $options['custom_color_moderate'] : '#ffc107'),
+            'high' => sanitize_hex_color(isset($options['custom_color_high']) ? $options['custom_color_high'] : '#fd7e14'),
+            'extreme' => sanitize_hex_color(isset($options['custom_color_extreme']) ? $options['custom_color_extreme'] : '#dc3545'),
+            'catastrophic' => sanitize_hex_color(isset($options['custom_color_catastrophic']) ? $options['custom_color_catastrophic'] : '#6f2c91')
+        );
+        
+        // Determine text color based on background brightness
+        $text_colors = array();
+        foreach ($colors as $key => $hex) {
+            $text_colors[$key] = $this->get_contrast_color($hex);
+        }
+        
+        // Generate comprehensive CSS for all elements
+        $css = "
+        /* Rating badges */
+        .cfa-scheme-custom .rating-low-moderate { background-color: {$colors['low_moderate']}; color: {$text_colors['low_moderate']}; }
+        .cfa-scheme-custom .rating-moderate { background-color: {$colors['moderate']}; color: {$text_colors['moderate']}; }
+        .cfa-scheme-custom .rating-high { background-color: {$colors['high']}; color: {$text_colors['high']}; }
+        .cfa-scheme-custom .rating-extreme { background-color: {$colors['extreme']}; color: {$text_colors['extreme']}; }
+        .cfa-scheme-custom .rating-catastrophic { background-color: {$colors['catastrophic']}; color: {$text_colors['catastrophic']}; }
+        
+        /* Table rows */
+        .cfa-scheme-custom .cfa-forecast-table tbody tr.low-moderate { background-color: {$colors['low_moderate']}; color: {$text_colors['low_moderate']}; }
+        .cfa-scheme-custom .cfa-forecast-table tbody tr.moderate { background-color: {$colors['moderate']}; color: {$text_colors['moderate']}; }
+        .cfa-scheme-custom .cfa-forecast-table tbody tr.high { background-color: {$colors['high']}; color: {$text_colors['high']}; }
+        .cfa-scheme-custom .cfa-forecast-table tbody tr.extreme { background-color: {$colors['extreme']}; color: {$text_colors['extreme']}; }
+        .cfa-scheme-custom .cfa-forecast-table tbody tr.catastrophic { background-color: {$colors['catastrophic']}; color: {$text_colors['catastrophic']}; }
+        
+        /* Card layouts */
+        .cfa-scheme-custom .cfa-forecast-card.low-moderate { border-color: {$colors['low_moderate']}; }
+        .cfa-scheme-custom .cfa-forecast-card.low-moderate .cfa-card-rating { background-color: {$colors['low_moderate']}; color: {$text_colors['low_moderate']}; }
+        .cfa-scheme-custom .cfa-forecast-card.moderate { border-color: {$colors['moderate']}; }
+        .cfa-scheme-custom .cfa-forecast-card.moderate .cfa-card-rating { background-color: {$colors['moderate']}; color: {$text_colors['moderate']}; }
+        .cfa-scheme-custom .cfa-forecast-card.high { border-color: {$colors['high']}; }
+        .cfa-scheme-custom .cfa-forecast-card.high .cfa-card-rating { background-color: {$colors['high']}; color: {$text_colors['high']}; }
+        .cfa-scheme-custom .cfa-forecast-card.extreme { border-color: {$colors['extreme']}; }
+        .cfa-scheme-custom .cfa-forecast-card.extreme .cfa-card-rating { background-color: {$colors['extreme']}; color: {$text_colors['extreme']}; }
+        .cfa-scheme-custom .cfa-forecast-card.catastrophic { border-color: {$colors['catastrophic']}; }
+        .cfa-scheme-custom .cfa-forecast-card.catastrophic .cfa-card-rating { background-color: {$colors['catastrophic']}; color: {$text_colors['catastrophic']}; }
+        
+        /* Compact layout */
+        .cfa-scheme-custom .cfa-compact-day.low-moderate { background-color: {$colors['low_moderate']}; color: {$text_colors['low_moderate']}; }
+        .cfa-scheme-custom .cfa-compact-day.moderate { background-color: {$colors['moderate']}; color: {$text_colors['moderate']}; }
+        .cfa-scheme-custom .cfa-compact-day.high { background-color: {$colors['high']}; color: {$text_colors['high']}; }
+        .cfa-scheme-custom .cfa-compact-day.extreme { background-color: {$colors['extreme']}; color: {$text_colors['extreme']}; }
+        .cfa-scheme-custom .cfa-compact-day.catastrophic { background-color: {$colors['catastrophic']}; color: {$text_colors['catastrophic']}; }
+        
+        /* Fire danger scale */
+        .cfa-scheme-custom .cfa-scale-item.low-moderate { background-color: {$colors['low_moderate']}; color: {$text_colors['low_moderate']}; }
+        .cfa-scheme-custom .cfa-scale-item.moderate { background-color: {$colors['moderate']}; color: {$text_colors['moderate']}; }
+        .cfa-scheme-custom .cfa-scale-item.high { background-color: {$colors['high']}; color: {$text_colors['high']}; }
+        .cfa-scheme-custom .cfa-scale-item.extreme { background-color: {$colors['extreme']}; color: {$text_colors['extreme']}; }
+        .cfa-scheme-custom .cfa-scale-item.catastrophic { background-color: {$colors['catastrophic']}; color: {$text_colors['catastrophic']}; }
+        
+        /* Header gradient using most severe color */
+        .cfa-scheme-custom .cfa-header {
+            background: linear-gradient(135deg, {$colors['catastrophic']} 0%, {$colors['extreme']} 100%);
+        }
+        
+        /* Total Fire Ban indicators */
+        .cfa-scheme-custom .cfa-total-fire-ban {
+            background: {$colors['catastrophic']};
+            color: {$text_colors['catastrophic']};
+        }
+        
+        .cfa-scheme-custom .cfa-total-fire-ban-small {
+            background: {$colors['catastrophic']};
+            color: {$text_colors['catastrophic']};
+        }
+        ";
+        
+        return $css;
+    }
+    
+    /**
+     * Get contrasting text color (black or white) based on background color
+     */
+    private function get_contrast_color($hex) {
+        // Remove # if present
+        $hex = str_replace('#', '', $hex);
+        
+        // Convert to RGB
+        $r = hexdec(substr($hex, 0, 2));
+        $g = hexdec(substr($hex, 2, 2));
+        $b = hexdec(substr($hex, 4, 2));
+        
+        // Calculate luminance
+        $luminance = (0.299 * $r + 0.587 * $g + 0.114 * $b) / 255;
+        
+        // Return black for light backgrounds, white for dark
+        return $luminance > 0.5 ? '#000000' : '#FFFFFF';
     }
     
     /**

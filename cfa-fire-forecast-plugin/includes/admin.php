@@ -206,6 +206,13 @@ class CFA_Fire_Forecast_Admin {
         }
         
         wp_enqueue_script('jquery');
+        wp_enqueue_script(
+            'cfa-admin-script',
+            CFA_FIRE_FORECAST_PLUGIN_URL . 'assets/js/admin.js',
+            array('jquery'),
+            CFA_FIRE_FORECAST_VERSION,
+            true
+        );
     }
     
     /**
@@ -275,7 +282,7 @@ class CFA_Fire_Forecast_Admin {
         $options = get_option('cfa_fire_forecast_options');
         $color_scheme = isset($options['color_scheme']) ? $options['color_scheme'] : 'official';
         ?>
-        <select name='cfa_fire_forecast_options[color_scheme]'>
+        <select name='cfa_fire_forecast_options[color_scheme]' id='cfa_color_scheme'>
             <option value='official' <?php selected($color_scheme, 'official'); ?>>
                 <?php _e('Official CFA Colors', 'cfa-fire-forecast'); ?>
             </option>
@@ -285,8 +292,39 @@ class CFA_Fire_Forecast_Admin {
             <option value='minimal' <?php selected($color_scheme, 'minimal'); ?>>
                 <?php _e('Minimal/Grayscale', 'cfa-fire-forecast'); ?>
             </option>
+            <option value='custom' <?php selected($color_scheme, 'custom'); ?>>
+                <?php _e('Custom Colors', 'cfa-fire-forecast'); ?>
+            </option>
         </select>
-        <p class="description"><?php _e('Choose the color scheme for fire danger ratings.', 'cfa-fire-forecast'); ?></p>
+        <p class="description"><?php _e('Choose the color scheme for fire danger ratings. Select "Custom Colors" to define your own colors.', 'cfa-fire-forecast'); ?></p>
+        
+        <div id='cfa_custom_colors' style='<?php echo ($color_scheme === 'custom') ? '' : 'display:none;'; ?> margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 6px;'>
+            <h4><?php _e('Custom Fire Danger Colors', 'cfa-fire-forecast'); ?></h4>
+            <p class="description"><?php _e('Click each color to customize. Use the color picker to choose your preferred colors for each fire danger level.', 'cfa-fire-forecast'); ?></p>
+            
+            <?php
+            $custom_colors = array(
+                'low_moderate' => array('label' => 'Low-Moderate', 'default' => '#28a745'),
+                'moderate' => array('label' => 'Moderate', 'default' => '#ffc107'),
+                'high' => array('label' => 'High', 'default' => '#fd7e14'),
+                'extreme' => array('label' => 'Extreme', 'default' => '#dc3545'),
+                'catastrophic' => array('label' => 'Catastrophic', 'default' => '#6f2c91')
+            );
+            
+            foreach ($custom_colors as $key => $color_data) {
+                $color_value = isset($options['custom_color_' . $key]) ? $options['custom_color_' . $key] : $color_data['default'];
+                ?>
+                <p style='display: flex; align-items: center; gap: 10px;'>
+                    <label style='min-width: 120px; font-weight: 600;'><?php echo esc_html($color_data['label']); ?>:</label>
+                    <input type='color' name='cfa_fire_forecast_options[custom_color_<?php echo $key; ?>]' value='<?php echo esc_attr($color_value); ?>' style='width: 80px; height: 40px;'>
+                    <span style='color: #666; font-size: 12px;'><?php echo esc_html($color_value); ?></span>
+                    <button type='button' class='button button-small' onclick='this.previousElementSibling.previousElementSibling.value="<?php echo $color_data['default']; ?>"; this.previousElementSibling.textContent="<?php echo $color_data['default']; ?>";'>Reset</button>
+                </p>
+                <?php
+            }
+            ?>
+        </div>
+        
         <?php
     }
     
