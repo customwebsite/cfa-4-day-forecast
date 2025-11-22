@@ -8,6 +8,29 @@ This is a WordPress plugin that provides real-time fire danger forecasts for Vic
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Updates
+
+### v4.8.0 (November 2025) - GitHub Issue #2
+**Feature:** Drag-and-drop forecast day tile ordering
+- **User Request:** Enable webmasters to choose order of forecast tiles (requested by cralwalker @ cobawrange.com.au)
+- **Implementation:** jQuery UI Sortable with drag-and-drop interface in admin settings
+- **Storage:** Comma-separated day indices stored in WordPress options (e.g., "2,0,3,1" for custom order)
+- **Frontend:** reorder_forecast_days() method applies custom ordering to all layouts
+- **Critical Fix:** "Today" CSS class now checks day label instead of array index for correct highlighting after reordering
+- **Applies to:** All layouts (table, cards, compact) and both single/multi-district views
+
+### v4.7.0 (November 2025) - GitHub Issue #3
+**Feature:** Official CFA/AFDRS colors and editable hex fields
+- **Updated colors:** Moderate changed from orange to green (#00843D) to match official AFDRS
+- **All colors updated:** Low-Moderate (#00843D), Moderate (#00843D), High (#FFB81C), Extreme (#DA291C), Catastrophic (#6D2077)
+- **Editable hex fields:** Two-way sync between color picker and hex input with validation
+
+### v4.6.2 (November 2025) - GitHub Issues #4 & #5
+**Fixes:**
+- **Issue #5:** Total Fire Ban false positive detection (was detecting legend text)
+- **Issue #4:** Timezone bug causing dates to display one day ahead (Melbourne vs UTC)
+- **Solution:** Extract only first paragraph from RSS, use Australia/Melbourne timezone throughout
+
 ## WordPress Plugin Architecture
 
 ### Plugin Structure
@@ -43,8 +66,8 @@ Preferred communication style: Simple, everyday language.
 
 ### Admin Settings Interface
 - **General Settings**: District selection, cache duration, update frequency
-- **Display Settings**: Color schemes, visibility toggles, custom header text
-- **Layout Settings**: Display format (table/cards/compact), forecast days, table styling, responsive design
+- **Display Settings**: Color schemes (official CFA/AFDRS, high contrast, minimal, custom with editable hex fields), visibility toggles, custom header text
+- **Layout Settings**: Display format (table/cards/compact), forecast days, table styling, responsive design, **drag-and-drop tile ordering (v4.8.0)**
 
 ## External Dependencies
 
