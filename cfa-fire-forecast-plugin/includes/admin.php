@@ -172,6 +172,14 @@ class CFA_Fire_Forecast_Admin {
             'cfa_layout_section'
         );
         
+        add_settings_field(
+            'day_order',
+            __('Forecast Day Order', 'cfa-fire-forecast'),
+            array($this, 'day_order_render'),
+            'cfa_fire_forecast',
+            'cfa_layout_section'
+        );
+        
         // Logging Settings Section
         add_settings_section(
             'cfa_logging_section',
@@ -206,12 +214,20 @@ class CFA_Fire_Forecast_Admin {
         }
         
         wp_enqueue_script('jquery');
+        wp_enqueue_script('jquery-ui-sortable');
         wp_enqueue_script(
             'cfa-admin-script',
             CFA_FIRE_FORECAST_PLUGIN_URL . 'assets/js/admin.js',
-            array('jquery'),
+            array('jquery', 'jquery-ui-sortable'),
             CFA_FIRE_FORECAST_VERSION,
             true
+        );
+        
+        wp_enqueue_style(
+            'cfa-admin-style',
+            CFA_FIRE_FORECAST_PLUGIN_URL . 'assets/css/admin.css',
+            array(),
+            CFA_FIRE_FORECAST_VERSION
         );
     }
     
@@ -513,6 +529,41 @@ class CFA_Fire_Forecast_Admin {
             <?php _e('Enable mobile responsive layout', 'cfa-fire-forecast'); ?>
         </label>
         <p class="description"><?php _e('Automatically adjusts layout for mobile devices (breakpoint: 768px).', 'cfa-fire-forecast'); ?></p>
+        <?php
+    }
+    
+    /**
+     * Layout Settings - Day Order
+     */
+    public function day_order_render() {
+        $options = get_option('cfa_fire_forecast_options');
+        $day_order = isset($options['day_order']) ? $options['day_order'] : '0,1,2,3'; // Default: Today, Tomorrow, Day 3, Day 4
+        
+        $day_labels = array(
+            0 => 'Today',
+            1 => 'Tomorrow',
+            2 => 'Day 3',
+            3 => 'Day 4'
+        );
+        
+        $current_order = explode(',', $day_order);
+        ?>
+        <input type='hidden' name='cfa_fire_forecast_options[day_order]' id='cfa_day_order_input' value='<?php echo esc_attr($day_order); ?>'>
+        
+        <ul id='cfa_sortable_days' class='cfa-sortable-list'>
+            <?php foreach ($current_order as $day_index): 
+                $day_index = intval($day_index);
+                if (isset($day_labels[$day_index])): ?>
+                <li data-day='<?php echo $day_index; ?>'>
+                    <span class='dashicons dashicons-menu'></span>
+                    <span class='day-label'><?php echo esc_html($day_labels[$day_index]); ?></span>
+                </li>
+            <?php endif; endforeach; ?>
+        </ul>
+        
+        <p class="description">
+            <?php _e('Drag and drop to reorder forecast days. This changes the display order in all layout types (table, cards, compact).', 'cfa-fire-forecast'); ?>
+        </p>
         <?php
     }
     

@@ -37,4 +37,21 @@ jQuery(document).ready(function($) {
         $('.cfa-hex-input[data-key="' + key + '"]').val(defaultColor);
         $('input[name="cfa_fire_forecast_options[custom_color_' + key + ']"]').val(defaultColor);
     });
+    
+    // Sortable day order
+    if ($('#cfa_sortable_days').length) {
+        $('#cfa_sortable_days').sortable({
+            placeholder: 'ui-sortable-placeholder',
+            update: function(event, ui) {
+                // Get new order
+                var order = [];
+                $('#cfa_sortable_days li').each(function() {
+                    order.push($(this).data('day'));
+                });
+                
+                // Update hidden input
+                $('#cfa_day_order_input').val(order.join(','));
+            }
+        });
+    }
 });

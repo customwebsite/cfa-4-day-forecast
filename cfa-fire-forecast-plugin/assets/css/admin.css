@@ -1,0 +1,54 @@
+/* CFA Fire Forecast Admin Styles */
+
+.cfa-sortable-list {
+    list-style: none;
+    margin: 10px 0;
+    padding: 0;
+    max-width: 400px;
+}
+
+.cfa-sortable-list li {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    cursor: move;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+}
+
+.cfa-sortable-list li:hover {
+    background: #f6f7f7;
+    border-color: #2271b1;
+}
+
+.cfa-sortable-list li.ui-sortable-helper {
+    background: #2271b1;
+    color: white;
+    border-color: #135e96;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.cfa-sortable-list li.ui-sortable-placeholder {
+    background: #f0f0f1;
+    border: 2px dashed #2271b1;
+    visibility: visible !important;
+    height: 48px;
+}
+
+.cfa-sortable-list .dashicons-menu {
+    color: #8c8f94;
+    font-size: 20px;
+}
+
+.cfa-sortable-list li.ui-sortable-helper .dashicons-menu {
+    color: white;
+}
+
+.cfa-sortable-list .day-label {
+    font-weight: 500;
+    font-size: 14px;
+}
