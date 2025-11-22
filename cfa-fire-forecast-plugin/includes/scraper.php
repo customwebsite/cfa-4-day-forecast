@@ -273,18 +273,32 @@ class CFA_Fire_Forecast_Scraper {
      * Extract Total Fire Ban status from description
      */
     private function extract_tfb_status($description) {
-        // Check for "is not currently a day of Total Fire Ban"
-        if (stripos($description, 'is not currently a day of Total Fire Ban') !== false) {
+        // Extract only the first paragraph to avoid matching legend/footer text
+        // The actual TFB status is always in the first paragraph of CFA RSS feeds
+        if (preg_match('/<p>(.*?)<\/p>/is', $description, $matches)) {
+            $first_paragraph = $matches[1];
+        } else {
+            // Fallback: use entire description if no <p> tags found
+            $first_paragraph = $description;
+        }
+        
+        // Check for negative indicators (no TFB)
+        if (stripos($first_paragraph, 'is not currently a day of Total Fire Ban') !== false ||
+            stripos($first_paragraph, 'is not a day of Total Fire Ban') !== false) {
             return false;
         }
         
-        // Check for positive indicators
-        if (stripos($description, 'Total Fire Ban in force') !== false ||
-            stripos($description, 'is a day of Total Fire Ban') !== false ||
-            stripos($description, 'Total Fire Ban declared') !== false) {
+        // Check for positive indicators (TFB active)
+        // Examples: "Today is a day of Total Fire Ban"
+        //           "Tomorrow is a day of Total Fire Ban"
+        //           "Total Fire Ban has been declared"
+        if (stripos($first_paragraph, 'is a day of Total Fire Ban') !== false ||
+            stripos($first_paragraph, 'Total Fire Ban declared') !== false ||
+            stripos($first_paragraph, 'Total Fire Ban has been declared') !== false) {
             return true;
         }
         
+        // Default to false (no TFB)
         return false;
     }
     
