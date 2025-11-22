@@ -152,6 +152,28 @@ class CFA_Fire_Forecast_Frontend {
     }
     
     /**
+     * Reorder forecast days based on admin settings (GitHub Issue #2)
+     */
+    private function reorder_forecast_days($forecast) {
+        $options = get_option('cfa_fire_forecast_options');
+        $day_order = isset($options['day_order']) ? $options['day_order'] : '0,1,2,3';
+        
+        // Convert comma-separated string to array
+        $order = array_map('intval', explode(',', $day_order));
+        
+        // Create reordered forecast array
+        $reordered = array();
+        foreach ($order as $index) {
+            if (isset($forecast[$index])) {
+                $reordered[] = $forecast[$index];
+            }
+        }
+        
+        // If reordered array is empty or incomplete, return original
+        return !empty($reordered) && count($reordered) === count($forecast) ? $reordered : $forecast;
+    }
+    
+    /**
      * Display fire forecast shortcode
      */
     public function display_forecast($atts) {
@@ -285,11 +307,14 @@ class CFA_Fire_Forecast_Frontend {
                                     <tr>
                                         <th class="district-header">District</th>
                                         <?php 
-                                        // Get dates from first district
+                                        // Get dates from first district and apply custom order
                                         $first_district = reset($district_data);
                                         if ($first_district && isset($first_district['forecast'])):
-                                            foreach ($first_district['forecast'] as $index => $day): ?>
-                                                <th class="day-header <?php echo $index === 0 ? 'today' : ''; ?>">
+                                            $ordered_forecast = $this->reorder_forecast_days($first_district['forecast']);
+                                            foreach ($ordered_forecast as $index => $day): 
+                                                $is_today = (strtolower($day['day']) === 'today');
+                                                ?>
+                                                <th class="day-header <?php echo $is_today ? 'today' : ''; ?>">
                                                     <div class="day-name"><?php echo esc_html($day['day']); ?></div>
                                                     <div class="day-date"><?php echo esc_html($day['date']); ?></div>
                                                 </th>
@@ -299,13 +324,17 @@ class CFA_Fire_Forecast_Frontend {
                                 </thead>
                                 <tbody>
                                     <?php foreach ($districts as $district): 
-                                        if (isset($district_data[$district]) && isset($district_data[$district]['forecast'])): ?>
+                                        if (isset($district_data[$district]) && isset($district_data[$district]['forecast'])): 
+                                            $ordered_forecast = $this->reorder_forecast_days($district_data[$district]['forecast']);
+                                            ?>
                                         <tr class="district-row">
                                             <td class="district-name">
                                                 <?php echo esc_html(ucwords(str_replace('-', ' ', $district))); ?>
                                             </td>
-                                            <?php foreach ($district_data[$district]['forecast'] as $index => $day): ?>
-                                            <td class="forecast-cell <?php echo $index === 0 ? 'today' : ''; ?>">
+                                            <?php foreach ($ordered_forecast as $index => $day): 
+                                                $is_today = (strtolower($day['day']) === 'today');
+                                                ?>
+                                            <td class="forecast-cell <?php echo $is_today ? 'today' : ''; ?>">
                                                 <div class="cfa-fire-danger-badge rating-<?php echo esc_attr($this->get_rating_class($day['rating'])); ?>">
                                                     <?php echo esc_html($day['rating']); ?>
                                                 </div>
@@ -323,12 +352,16 @@ class CFA_Fire_Forecast_Frontend {
                         <?php elseif ($display_format === 'cards'): ?>
                         <div class="cfa-multi-district-cards">
                             <?php foreach ($districts as $district): 
-                                if (isset($district_data[$district]) && isset($district_data[$district]['forecast'])): ?>
+                                if (isset($district_data[$district]) && isset($district_data[$district]['forecast'])): 
+                                    $ordered_forecast = $this->reorder_forecast_days($district_data[$district]['forecast']);
+                                    ?>
                                 <div class="cfa-district-card">
                                     <h3 class="district-card-title"><?php echo esc_html(ucwords(str_replace('-', ' ', $district))); ?></h3>
                                     <div class="cfa-forecast-grid">
-                                        <?php foreach ($district_data[$district]['forecast'] as $index => $day): ?>
-                                        <div class="cfa-forecast-day <?php echo $index === 0 ? 'today' : ''; ?>">
+                                        <?php foreach ($ordered_forecast as $index => $day): 
+                                            $is_today = (strtolower($day['day']) === 'today');
+                                            ?>
+                                        <div class="cfa-forecast-day <?php echo $is_today ? 'today' : ''; ?>">
                                             <div class="cfa-day-header"><?php echo esc_html($day['day']); ?></div>
                                             <div class="cfa-day-date"><?php echo esc_html($day['date']); ?></div>
                                             <div class="cfa-fire-danger-badge rating-<?php echo esc_attr($this->get_rating_class($day['rating'])); ?>">
@@ -347,12 +380,16 @@ class CFA_Fire_Forecast_Frontend {
                         <?php else: // compact ?>
                         <div class="cfa-multi-district-compact">
                             <?php foreach ($districts as $district): 
-                                if (isset($district_data[$district]) && isset($district_data[$district]['forecast'])): ?>
+                                if (isset($district_data[$district]) && isset($district_data[$district]['forecast'])): 
+                                    $ordered_forecast = $this->reorder_forecast_days($district_data[$district]['forecast']);
+                                    ?>
                                 <div class="cfa-district-compact-section">
                                     <h3 class="district-compact-title"><?php echo esc_html(ucwords(str_replace('-', ' ', $district))); ?></h3>
                                     <div class="cfa-compact-list">
-                                        <?php foreach ($district_data[$district]['forecast'] as $index => $day): ?>
-                                        <div class="cfa-compact-item <?php echo $index === 0 ? 'today' : ''; ?>">
+                                        <?php foreach ($ordered_forecast as $index => $day): 
+                                            $is_today = (strtolower($day['day']) === 'today');
+                                            ?>
+                                        <div class="cfa-compact-item <?php echo $is_today ? 'today' : ''; ?>">
                                             <span class="compact-day"><?php echo esc_html($day['day']); ?> (<?php echo esc_html($day['date']); ?>)</span>
                                             <span class="cfa-fire-danger-badge rating-<?php echo esc_attr($this->get_rating_class($day['rating'])); ?>">
                                                 <?php echo esc_html($day['rating']); ?>
@@ -479,10 +516,16 @@ class CFA_Fire_Forecast_Frontend {
                         4 Day Fire Danger Forecast
                     </div>
                     <div class="cfa-forecast-content">
+                        <?php 
+                        // Apply custom day ordering (GitHub Issue #2)
+                        $ordered_forecast = $this->reorder_forecast_days($data['data']['forecast']);
+                        ?>
                         <?php if ($display_format === 'compact'): ?>
                         <div class="cfa-forecast-compact">
-                            <?php foreach ($data['data']['forecast'] as $index => $day): ?>
-                            <div class="cfa-compact-item <?php echo $index === 0 ? 'today' : ''; ?>">
+                            <?php foreach ($ordered_forecast as $index => $day): 
+                                $is_today = (strtolower($day['day']) === 'today');
+                                ?>
+                            <div class="cfa-compact-item <?php echo $is_today ? 'today' : ''; ?>">
                                 <span class="compact-day"><?php echo esc_html($day['day']); ?> (<?php echo esc_html($day['date']); ?>)</span>
                                 <span class="cfa-fire-danger-badge rating-<?php echo esc_attr($this->get_rating_class($day['rating'])); ?>">
                                     <?php echo esc_html($day['rating']); ?>
@@ -495,8 +538,10 @@ class CFA_Fire_Forecast_Frontend {
                         </div>
                         <?php else: ?>
                         <div class="cfa-forecast-grid">
-                            <?php foreach ($data['data']['forecast'] as $index => $day): ?>
-                            <div class="cfa-forecast-day <?php echo $index === 0 ? 'today' : ''; ?>">
+                            <?php foreach ($ordered_forecast as $index => $day): 
+                                $is_today = (strtolower($day['day']) === 'today');
+                                ?>
+                            <div class="cfa-forecast-day <?php echo $is_today ? 'today' : ''; ?>">
                                 <div class="cfa-day-header"><?php echo esc_html($day['day']); ?></div>
                                 <div class="cfa-day-date"><?php echo esc_html($day['date']); ?></div>
                                 <div class="cfa-fire-danger-badge rating-<?php echo esc_attr($this->get_rating_class($day['rating'])); ?>">
