@@ -55,12 +55,13 @@ class CFA_Fire_Forecast_Frontend {
      * Generate custom colors CSS
      */
     private function generate_custom_colors_css($options) {
+        // Official CFA/AFDRS Fire Danger Rating colors
         $colors = array(
-            'low_moderate' => sanitize_hex_color(isset($options['custom_color_low_moderate']) ? $options['custom_color_low_moderate'] : '#28a745'),
-            'moderate' => sanitize_hex_color(isset($options['custom_color_moderate']) ? $options['custom_color_moderate'] : '#ffc107'),
-            'high' => sanitize_hex_color(isset($options['custom_color_high']) ? $options['custom_color_high'] : '#fd7e14'),
-            'extreme' => sanitize_hex_color(isset($options['custom_color_extreme']) ? $options['custom_color_extreme'] : '#dc3545'),
-            'catastrophic' => sanitize_hex_color(isset($options['custom_color_catastrophic']) ? $options['custom_color_catastrophic'] : '#6f2c91')
+            'low_moderate' => sanitize_hex_color(isset($options['custom_color_low_moderate']) ? $options['custom_color_low_moderate'] : '#00843D'),
+            'moderate' => sanitize_hex_color(isset($options['custom_color_moderate']) ? $options['custom_color_moderate'] : '#00843D'),
+            'high' => sanitize_hex_color(isset($options['custom_color_high']) ? $options['custom_color_high'] : '#FFB81C'),
+            'extreme' => sanitize_hex_color(isset($options['custom_color_extreme']) ? $options['custom_color_extreme'] : '#DA291C'),
+            'catastrophic' => sanitize_hex_color(isset($options['custom_color_catastrophic']) ? $options['custom_color_catastrophic'] : '#6D2077')
         );
         
         // Determine text color based on background brightness

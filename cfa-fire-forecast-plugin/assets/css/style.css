@@ -178,34 +178,34 @@
     margin-top: 10px;
 }
 
-/* Fire Danger Rating Colors */
+/* Fire Danger Rating Colors - Official CFA/AFDRS */
 .rating-no-rating { 
     background-color: #e9ecef; 
     color: #495057;
 }
 
 .rating-low-moderate { 
-    background-color: #28a745; 
+    background-color: #00843D; 
     color: white;
 }
 
 .rating-moderate { 
-    background-color: #ffc107; 
-    color: #212529;
-}
-
-.rating-high { 
-    background-color: #fd7e14; 
+    background-color: #00843D; 
     color: white;
 }
 
+.rating-high { 
+    background-color: #FFB81C; 
+    color: #212529;
+}
+
 .rating-extreme { 
-    background-color: #dc3545; 
+    background-color: #DA291C; 
     color: white;
 }
 
 .rating-catastrophic {
-    background-color: #6f2c91;
+    background-color: #6D2077;
     color: white;
 }
 
@@ -214,56 +214,56 @@
     color: white;
 }
 
-/* Official CFA Colors - Tables */
+/* Official CFA/AFDRS Colors - Tables */
 .cfa-forecast-table tbody tr.low-moderate {
-    background-color: #28a745;
+    background-color: #00843D;
     color: white;
 }
 
 .cfa-forecast-table tbody tr.moderate {
-    background-color: #ffc107;
-    color: #212529;
-}
-
-.cfa-forecast-table tbody tr.high {
-    background-color: #fd7e14;
+    background-color: #00843D;
     color: white;
 }
 
+.cfa-forecast-table tbody tr.high {
+    background-color: #FFB81C;
+    color: #212529;
+}
+
 .cfa-forecast-table tbody tr.extreme {
-    background-color: #dc3545;
+    background-color: #DA291C;
     color: white;
 }
 
 .cfa-forecast-table tbody tr.catastrophic {
-    background-color: #6f2c91;
+    background-color: #6D2077;
     color: white;
 }
 
-/* Official CFA Colors - Cards and Compact */
-.cfa-forecast-card.low-moderate { border-color: #28a745; }
-.cfa-forecast-card.low-moderate .cfa-card-rating { background-color: #28a745; color: white; }
-.cfa-forecast-card.moderate { border-color: #ffc107; }
-.cfa-forecast-card.moderate .cfa-card-rating { background-color: #ffc107; color: #212529; }
-.cfa-forecast-card.high { border-color: #fd7e14; }
-.cfa-forecast-card.high .cfa-card-rating { background-color: #fd7e14; color: white; }
-.cfa-forecast-card.extreme { border-color: #dc3545; }
-.cfa-forecast-card.extreme .cfa-card-rating { background-color: #dc3545; color: white; }
-.cfa-forecast-card.catastrophic { border-color: #6f2c91; }
-.cfa-forecast-card.catastrophic .cfa-card-rating { background-color: #6f2c91; color: white; }
+/* Official CFA/AFDRS Colors - Cards and Compact */
+.cfa-forecast-card.low-moderate { border-color: #00843D; }
+.cfa-forecast-card.low-moderate .cfa-card-rating { background-color: #00843D; color: white; }
+.cfa-forecast-card.moderate { border-color: #00843D; }
+.cfa-forecast-card.moderate .cfa-card-rating { background-color: #00843D; color: white; }
+.cfa-forecast-card.high { border-color: #FFB81C; }
+.cfa-forecast-card.high .cfa-card-rating { background-color: #FFB81C; color: #212529; }
+.cfa-forecast-card.extreme { border-color: #DA291C; }
+.cfa-forecast-card.extreme .cfa-card-rating { background-color: #DA291C; color: white; }
+.cfa-forecast-card.catastrophic { border-color: #6D2077; }
+.cfa-forecast-card.catastrophic .cfa-card-rating { background-color: #6D2077; color: white; }
 
-.cfa-compact-day.low-moderate { background-color: #28a745; color: white; }
-.cfa-compact-day.moderate { background-color: #ffc107; color: #212529; }
-.cfa-compact-day.high { background-color: #fd7e14; color: white; }
-.cfa-compact-day.extreme { background-color: #dc3545; color: white; }
-.cfa-compact-day.catastrophic { background-color: #6f2c91; color: white; }
+.cfa-compact-day.low-moderate { background-color: #00843D; color: white; }
+.cfa-compact-day.moderate { background-color: #00843D; color: white; }
+.cfa-compact-day.high { background-color: #FFB81C; color: #212529; }
+.cfa-compact-day.extreme { background-color: #DA291C; color: white; }
+.cfa-compact-day.catastrophic { background-color: #6D2077; color: white; }
 
-/* Official CFA Colors - Fire Danger Scale */
-.cfa-scale-item.low-moderate { background-color: #28a745; color: white; }
-.cfa-scale-item.moderate { background-color: #ffc107; color: #212529; }
-.cfa-scale-item.high { background-color: #fd7e14; color: white; }
-.cfa-scale-item.extreme { background-color: #dc3545; color: white; }
-.cfa-scale-item.catastrophic { background-color: #6f2c91; color: white; }
+/* Official CFA/AFDRS Colors - Fire Danger Scale */
+.cfa-scale-item.low-moderate { background-color: #00843D; color: white; }
+.cfa-scale-item.moderate { background-color: #00843D; color: white; }
+.cfa-scale-item.high { background-color: #FFB81C; color: #212529; }
+.cfa-scale-item.extreme { background-color: #DA291C; color: white; }
+.cfa-scale-item.catastrophic { background-color: #6D2077; color: white; }
 
 /* High Contrast Color Scheme */
 .cfa-scheme-high_contrast .rating-no-rating {

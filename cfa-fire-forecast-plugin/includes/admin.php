@@ -303,12 +303,13 @@ class CFA_Fire_Forecast_Admin {
             <p class="description"><?php _e('Click each color to customize. Use the color picker to choose your preferred colors for each fire danger level.', 'cfa-fire-forecast'); ?></p>
             
             <?php
+            // Official CFA/AFDRS Fire Danger Rating colors
             $custom_colors = array(
-                'low_moderate' => array('label' => 'Low-Moderate', 'default' => '#28a745'),
-                'moderate' => array('label' => 'Moderate', 'default' => '#ffc107'),
-                'high' => array('label' => 'High', 'default' => '#fd7e14'),
-                'extreme' => array('label' => 'Extreme', 'default' => '#dc3545'),
-                'catastrophic' => array('label' => 'Catastrophic', 'default' => '#6f2c91')
+                'low_moderate' => array('label' => 'Low-Moderate', 'default' => '#00843D'),
+                'moderate' => array('label' => 'Moderate', 'default' => '#00843D'),
+                'high' => array('label' => 'High', 'default' => '#FFB81C'),
+                'extreme' => array('label' => 'Extreme', 'default' => '#DA291C'),
+                'catastrophic' => array('label' => 'Catastrophic', 'default' => '#6D2077')
             );
             
             foreach ($custom_colors as $key => $color_data) {
@@ -316,9 +317,9 @@ class CFA_Fire_Forecast_Admin {
                 ?>
                 <p style='display: flex; align-items: center; gap: 10px;'>
                     <label style='min-width: 120px; font-weight: 600;'><?php echo esc_html($color_data['label']); ?>:</label>
-                    <input type='color' name='cfa_fire_forecast_options[custom_color_<?php echo $key; ?>]' value='<?php echo esc_attr($color_value); ?>' style='width: 80px; height: 40px;'>
-                    <span style='color: #666; font-size: 12px;'><?php echo esc_html($color_value); ?></span>
-                    <button type='button' class='button button-small' onclick='this.previousElementSibling.previousElementSibling.value="<?php echo $color_data['default']; ?>"; this.previousElementSibling.textContent="<?php echo $color_data['default']; ?>";'>Reset</button>
+                    <input type='color' name='cfa_fire_forecast_options[custom_color_<?php echo $key; ?>]' value='<?php echo esc_attr($color_value); ?>' class='cfa-color-picker' style='width: 80px; height: 40px;' data-key='<?php echo $key; ?>'>
+                    <input type='text' class='cfa-hex-input' value='<?php echo esc_attr($color_value); ?>' maxlength='7' pattern='#[0-9A-Fa-f]{6}' style='width: 100px; font-family: monospace; text-transform: uppercase;' data-key='<?php echo $key; ?>'>
+                    <button type='button' class='button button-small cfa-reset-color' data-key='<?php echo $key; ?>' data-default='<?php echo $color_data['default']; ?>'>Reset</button>
                 </p>
                 <?php
             }

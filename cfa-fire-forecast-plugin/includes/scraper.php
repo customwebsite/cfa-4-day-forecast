@@ -228,10 +228,15 @@ class CFA_Fire_Forecast_Scraper {
         }
         
         // If we didn't get 4 days, pad with NO RATING
+        // Use Melbourne timezone for consistency
+        $melbourne_tz = new DateTimeZone('Australia/Melbourne');
         while (count($forecast_data) < 4) {
+            $date_offset = new DateTime('now', $melbourne_tz);
+            $date_offset->modify('+' . count($forecast_data) . ' days');
+            
             $forecast_data[] = array(
                 'day' => 'Day ' . (count($forecast_data) + 1),
-                'date' => date('Y-m-d', strtotime('+' . count($forecast_data) . ' days')),
+                'date' => $date_offset->format('Y-m-d'),
                 'rating' => 'NO RATING',
                 'total_fire_ban' => false
             );
@@ -282,17 +287,24 @@ class CFA_Fire_Forecast_Scraper {
             $first_paragraph = $description;
         }
         
-        // Check for negative indicators (no TFB)
+        // Check for negative indicators FIRST (no TFB)
+        // These phrases explicitly state there is NO ban
         if (stripos($first_paragraph, 'is not currently a day of Total Fire Ban') !== false ||
             stripos($first_paragraph, 'is not a day of Total Fire Ban') !== false) {
             return false;
         }
         
         // Check for positive indicators (TFB active)
-        // Examples: "Today is a day of Total Fire Ban"
-        //           "Tomorrow is a day of Total Fire Ban"
-        //           "Total Fire Ban has been declared"
+        // CFA uses various phrasings for actual Total Fire Bans:
+        // - "Today is a day of Total Fire Ban"
+        // - "Total Fire Ban in force for Monday"
+        // - "Total Fire Ban has been declared"
+        // - "Total Fire Ban declared"
+        //
+        // By checking ONLY the first paragraph, we avoid matching the legend
+        // "Displays when Total Fire Ban in force" which appears in later paragraphs
         if (stripos($first_paragraph, 'is a day of Total Fire Ban') !== false ||
+            stripos($first_paragraph, 'Total Fire Ban in force for') !== false ||
             stripos($first_paragraph, 'Total Fire Ban declared') !== false ||
             stripos($first_paragraph, 'Total Fire Ban has been declared') !== false) {
             return true;
@@ -307,13 +319,17 @@ class CFA_Fire_Forecast_Scraper {
      */
     private function parse_date_from_title($title) {
         // Try to parse date from title like "Thursday, 02 October 2025"
-        $timestamp = strtotime($title);
-        if ($timestamp !== false) {
-            return date('Y-m-d', $timestamp);
-        }
+        // Use Melbourne timezone to ensure dates match CFA's timezone
+        $melbourne_tz = new DateTimeZone('Australia/Melbourne');
         
-        // Fallback to current date
-        return date('Y-m-d');
+        try {
+            $date = new DateTime($title, $melbourne_tz);
+            return $date->format('Y-m-d');
+        } catch (Exception $e) {
+            // Fallback to current date in Melbourne timezone
+            $now = new DateTime('now', $melbourne_tz);
+            return $now->format('Y-m-d');
+        }
     }
     
     /**
@@ -342,15 +358,19 @@ class CFA_Fire_Forecast_Scraper {
      * Get fallback data when scraping fails
      */
     private function get_fallback_data($district = '') {
+        // Use Melbourne timezone for fallback dates
+        $melbourne_tz = new DateTimeZone('Australia/Melbourne');
+        $today = new DateTime('now', $melbourne_tz);
+        
         return array(
             'data' => array(
                 'current_rating' => 'NO RATING',
                 'total_fire_ban' => false,
                 'forecast' => array(
-                    array('day' => 'Today', 'date' => date('Y-m-d'), 'rating' => 'NO RATING', 'total_fire_ban' => false),
-                    array('day' => 'Tomorrow', 'date' => date('Y-m-d', strtotime('+1 day')), 'rating' => 'NO RATING', 'total_fire_ban' => false),
-                    array('day' => 'Day 3', 'date' => date('Y-m-d', strtotime('+2 days')), 'rating' => 'NO RATING', 'total_fire_ban' => false),
-                    array('day' => 'Day 4', 'date' => date('Y-m-d', strtotime('+3 days')), 'rating' => 'NO RATING', 'total_fire_ban' => false)
+                    array('day' => 'Today', 'date' => $today->format('Y-m-d'), 'rating' => 'NO RATING', 'total_fire_ban' => false),
+                    array('day' => 'Tomorrow', 'date' => (clone $today)->modify('+1 day')->format('Y-m-d'), 'rating' => 'NO RATING', 'total_fire_ban' => false),
+                    array('day' => 'Day 3', 'date' => (clone $today)->modify('+2 days')->format('Y-m-d'), 'rating' => 'NO RATING', 'total_fire_ban' => false),
+                    array('day' => 'Day 4', 'date' => (clone $today)->modify('+3 days')->format('Y-m-d'), 'rating' => 'NO RATING', 'total_fire_ban' => false)
                 ),
                 'district' => !empty($district) ? ucwords(str_replace('-', ' ', $district)) : 'Unknown District'
             ),
