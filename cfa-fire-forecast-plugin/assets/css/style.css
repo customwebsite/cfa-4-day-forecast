@@ -185,8 +185,8 @@
 }
 
 .rating-low-moderate { 
-    background-color: #00843D; 
-    color: white;
+    background-color: #7BC142; 
+    color: #212529;
 }
 
 .rating-moderate { 
@@ -216,8 +216,8 @@
 
 /* Official CFA/AFDRS Colors - Tables */
 .cfa-forecast-table tbody tr.low-moderate {
-    background-color: #00843D;
-    color: white;
+    background-color: #7BC142;
+    color: #212529;
 }
 
 .cfa-forecast-table tbody tr.moderate {
@@ -241,8 +241,8 @@
 }
 
 /* Official CFA/AFDRS Colors - Cards and Compact */
-.cfa-forecast-card.low-moderate { border-color: #00843D; }
-.cfa-forecast-card.low-moderate .cfa-card-rating { background-color: #00843D; color: white; }
+.cfa-forecast-card.low-moderate { border-color: #7BC142; }
+.cfa-forecast-card.low-moderate .cfa-card-rating { background-color: #7BC142; color: #212529; }
 .cfa-forecast-card.moderate { border-color: #00843D; }
 .cfa-forecast-card.moderate .cfa-card-rating { background-color: #00843D; color: white; }
 .cfa-forecast-card.high { border-color: #FFB81C; }
@@ -252,14 +252,14 @@
 .cfa-forecast-card.catastrophic { border-color: #6D2077; }
 .cfa-forecast-card.catastrophic .cfa-card-rating { background-color: #6D2077; color: white; }
 
-.cfa-compact-day.low-moderate { background-color: #00843D; color: white; }
+.cfa-compact-day.low-moderate { background-color: #7BC142; color: #212529; }
 .cfa-compact-day.moderate { background-color: #00843D; color: white; }
 .cfa-compact-day.high { background-color: #FFB81C; color: #212529; }
 .cfa-compact-day.extreme { background-color: #DA291C; color: white; }
 .cfa-compact-day.catastrophic { background-color: #6D2077; color: white; }
 
 /* Official CFA/AFDRS Colors - Fire Danger Scale */
-.cfa-scale-item.low-moderate { background-color: #00843D; color: white; }
+.cfa-scale-item.low-moderate { background-color: #7BC142; color: #212529; }
 .cfa-scale-item.moderate { background-color: #00843D; color: white; }
 .cfa-scale-item.high { background-color: #FFB81C; color: #212529; }
 .cfa-scale-item.extreme { background-color: #DA291C; color: white; }

@@ -10,6 +10,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates
 
+### v4.8.1 (November 2025) - GitHub Issue #3 Color Fix
+**Fix:** Differentiate Low-Moderate and Moderate colors
+- **Previous:** Both Low-Moderate and Moderate were #00843D (same dark green)
+- **Fixed:** Low-Moderate is now #7BC142 (lighter green), Moderate remains #00843D (dark green)
+- **Reason:** Official AFDRS uses distinct colors for each fire danger level
+- **Text contrast:** Low-Moderate uses dark text on light green, Moderate uses white on dark green
+- **Applies to:** All layouts (table, cards, compact) and both single/multi-district views
+
 ### v4.8.0 (November 2025) - GitHub Issue #2
 **Feature:** Drag-and-drop forecast day tile ordering
 - **User Request:** Enable webmasters to choose order of forecast tiles (requested by cralwalker @ cobawrange.com.au)

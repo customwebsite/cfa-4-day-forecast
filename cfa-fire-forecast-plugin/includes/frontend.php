@@ -57,7 +57,7 @@ class CFA_Fire_Forecast_Frontend {
     private function generate_custom_colors_css($options) {
         // Official CFA/AFDRS Fire Danger Rating colors
         $colors = array(
-            'low_moderate' => sanitize_hex_color(isset($options['custom_color_low_moderate']) ? $options['custom_color_low_moderate'] : '#00843D'),
+            'low_moderate' => sanitize_hex_color(isset($options['custom_color_low_moderate']) ? $options['custom_color_low_moderate'] : '#7BC142'),
             'moderate' => sanitize_hex_color(isset($options['custom_color_moderate']) ? $options['custom_color_moderate'] : '#00843D'),
             'high' => sanitize_hex_color(isset($options['custom_color_high']) ? $options['custom_color_high'] : '#FFB81C'),
             'extreme' => sanitize_hex_color(isset($options['custom_color_extreme']) ? $options['custom_color_extreme'] : '#DA291C'),

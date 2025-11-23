@@ -321,7 +321,7 @@ class CFA_Fire_Forecast_Admin {
             <?php
             // Official CFA/AFDRS Fire Danger Rating colors
             $custom_colors = array(
-                'low_moderate' => array('label' => 'Low-Moderate', 'default' => '#00843D'),
+                'low_moderate' => array('label' => 'Low-Moderate', 'default' => '#7BC142'),
                 'moderate' => array('label' => 'Moderate', 'default' => '#00843D'),
                 'high' => array('label' => 'High', 'default' => '#FFB81C'),
                 'extreme' => array('label' => 'Extreme', 'default' => '#DA291C'),
