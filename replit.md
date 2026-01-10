@@ -10,6 +10,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates
 
+### v4.8.2 (January 2026) - GitHub Issue #7 TFB Detection Fix
+**Fix:** Improved Total Fire Ban detection logic
+- **Issue:** TFB status for "Tomorrow" was not being detected in some CFA RSS feed variations
+- **Solution:** Broadened regex and string matching to handle more TFB declaration phrasings
+- **Improved:** `extract_tfb_status()` now matches "Total Fire Ban in force" without needing specific day suffix
+- **Applies to:** All districts and forecast days
+
 ### v4.8.1 (November 2025) - GitHub Issue #3 Color Fix
 **Fix:** Differentiate Low-Moderate and Moderate colors
 - **Previous:** Both Low-Moderate and Moderate were #00843D (same dark green)
