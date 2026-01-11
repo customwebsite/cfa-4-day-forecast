@@ -37,16 +37,16 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "CFA Data Test"
+args = "TFB Layout Test"
 
 [[workflows.workflow]]
-name = "CFA Data Test"
+name = "TFB Layout Test"
 author = "agent"
-
-[workflows.workflow.metadata]
-outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "php -S 0.0.0.0:5000 cfa-fire-forecast-plugin/test-cfa-data.php"
+args = "php -S 0.0.0.0:5000 cfa-fire-forecast-plugin/test-tfb-layouts.php"
 waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
