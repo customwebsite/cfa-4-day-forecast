@@ -300,6 +300,7 @@ class CFA_Fire_Forecast_Scraper {
         // - "Total Fire Ban in force for Monday"
         // - "Total Fire Ban has been declared"
         // - "Total Fire Ban declared"
+        // - "has been declared a day of Total Fire Ban"
         // - "is a day of Total Fire Ban"
         //
         // By checking ONLY the first paragraph, we avoid matching the legend
@@ -308,6 +309,7 @@ class CFA_Fire_Forecast_Scraper {
             stripos($first_paragraph, 'Total Fire Ban in force') !== false ||
             stripos($first_paragraph, 'Total Fire Ban declared') !== false ||
             stripos($first_paragraph, 'Total Fire Ban has been declared') !== false ||
+            stripos($first_paragraph, 'has been declared a day of Total Fire Ban') !== false ||
             stripos($first_paragraph, 'is a Total Fire Ban day') !== false) {
             return true;
         }

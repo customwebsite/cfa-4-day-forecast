@@ -50,10 +50,10 @@ $mock_data = array(
     ),
     'north-central-fire-district' => array(
         'current_rating' => 'HIGH',
-        'total_fire_ban' => false,
+        'total_fire_ban' => true,
         'district' => 'North Central',
         'forecast' => array(
-            array('day' => 'Today', 'date' => '2026-01-11', 'rating' => 'HIGH', 'total_fire_ban' => false),
+            array('day' => 'Today', 'date' => '2026-01-11', 'rating' => 'HIGH', 'total_fire_ban' => true),
             array('day' => 'Tomorrow', 'date' => '2026-01-12', 'rating' => 'MODERATE', 'total_fire_ban' => false),
             array('day' => 'Tuesday', 'date' => '2026-01-13', 'rating' => 'LOW-MODERATE', 'total_fire_ban' => false),
             array('day' => 'Wednesday', 'date' => '2026-01-14', 'rating' => 'NO RATING', 'total_fire_ban' => false),
