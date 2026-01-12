@@ -10,7 +10,12 @@ if (!function_exists('esc_attr')) { function esc_attr($text) { return htmlspecia
 if (!function_exists('esc_html')) { function esc_html($text) { return htmlspecialchars($text); } }
 if (!function_exists('esc_url')) { function esc_url($url) { return htmlspecialchars($url); } }
 if (!function_exists('sanitize_hex_color')) { function sanitize_hex_color($color) { return $color; } }
-if (!function_exists('get_option')) { function get_option($opt, $default = array()) { return $default; } }
+if (!function_exists('get_option')) { function get_option($opt, $default = array()) { 
+    if ($opt === 'cfa_fire_forecast_options') {
+        return array('color_scheme' => 'official', 'display_format' => 'table');
+    }
+    return $default; 
+} }
 if (!function_exists('plugin_dir_path')) { function plugin_dir_path($file) { return __DIR__ . '/'; } }
 if (!function_exists('plugin_dir_url')) { function plugin_dir_url($file) { return ''; } }
 if (!function_exists('add_shortcode')) { function add_shortcode($tag, $callback) { } }
@@ -25,13 +30,8 @@ if (!defined('ABSPATH')) define('ABSPATH', __DIR__ . '/');
 if (!defined('CFA_FIRE_FORECAST_PLUGIN_URL')) define('CFA_FIRE_FORECAST_PLUGIN_URL', '');
 if (!defined('CFA_FIRE_FORECAST_VERSION')) define('CFA_FIRE_FORECAST_VERSION', '4.8.2');
 
-// Load the frontend class - USE ABSOLUTE PATH
+// Load the frontend class
 require_once __DIR__ . '/includes/frontend.php';
-
-if (!class_exists('CFA_Fire_Forecast_Frontend')) {
-    echo "Error: CFA_Fire_Forecast_Frontend class not found at " . __DIR__ . '/includes/frontend.php';
-    exit;
-}
 
 $frontend = new CFA_Fire_Forecast_Frontend();
 
@@ -70,17 +70,20 @@ function callPrivateMethod($object, $methodName, $parameters = array()) {
 }
 
 echo "<html><head>";
-echo "<link rel='stylesheet' href='assets/css/style.css'>";
-echo "<style>
-    body { font-family: sans-serif; padding: 20px; background: #f0f0f0; max-width: 1200px; margin: 0 auto; }
-    .test-section { margin-bottom: 50px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    h1 { color: #333; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
-    h2 { color: #666; margin-top: 0; }
-    .cfa-fire-forecast-container { margin-bottom: 20px; border: 1px solid #ddd; }
+echo "<style>";
+// Inject actual plugin CSS
+echo file_get_contents(__DIR__ . '/assets/css/style.css');
+echo "
+    body { font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen-Sans, Ubuntu, Cantarell, \"Helvetica Neue\", sans-serif; padding: 40px; background: #f0f2f5; max-width: 1000px; margin: 0 auto; color: #1d2327; }
+    .test-wrapper { margin-bottom: 60px; }
+    h1 { color: #1d2327; border-bottom: 3px solid #2271b1; padding-bottom: 15px; margin-bottom: 30px; font-size: 2em; }
+    h2 { background: #2271b1; color: white; padding: 10px 20px; border-radius: 6px 6px 0 0; margin: 0; font-size: 1.2em; }
+    .test-content { background: white; padding: 30px; border: 1px solid #c3c4c7; border-top: none; border-radius: 0 0 6px 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .cfa-fire-forecast-container { margin: 0 !important; }
 </style>";
 echo "</head><body>";
 
-echo "<h1>TFB Display Test - v4.8.2</h1>";
+echo "<h1>TFB Look & Feel Test - v4.8.2</h1>";
 
 $districts = array('central-fire-district', 'north-central-fire-district');
 $data = array(
@@ -90,27 +93,30 @@ $data = array(
 );
 
 // Test Table Layout
-echo "<div class='test-section'>";
-echo "<h2>1. Table Layout (Multi-District)</h2>";
+echo "<div class='test-wrapper'>";
+echo "<h2>1. Official Table Layout</h2>";
+echo "<div class='test-content'>";
 ob_start();
-callPrivateMethod($frontend, 'render_multi_district_forecast', array($data, array('layout' => 'table', 'auto_refresh' => 'false', 'show_scale' => 'false')));
+callPrivateMethod($frontend, 'render_multi_district_forecast', array($data, array('layout' => 'table', 'auto_refresh' => 'false', 'show_scale' => 'true')));
 echo ob_get_clean();
-echo "</div>";
+echo "</div></div>";
 
 // Test Card Layout
-echo "<div class='test-section'>";
-echo "<h2>2. Card Layout (Multi-District)</h2>";
+echo "<div class='test-wrapper'>";
+echo "<h2>2. Card Layout</h2>";
+echo "<div class='test-content'>";
 ob_start();
 callPrivateMethod($frontend, 'render_multi_district_forecast', array($data, array('layout' => 'cards', 'auto_refresh' => 'false', 'show_scale' => 'false')));
 echo ob_get_clean();
-echo "</div>";
+echo "</div></div>";
 
 // Test Compact Layout
-echo "<div class='test-section'>";
-echo "<h2>3. Compact Layout (Multi-District)</h2>";
+echo "<div class='test-wrapper'>";
+echo "<h2>3. Compact Layout</h2>";
+echo "<div class='test-content'>";
 ob_start();
 callPrivateMethod($frontend, 'render_multi_district_forecast', array($data, array('layout' => 'compact', 'auto_refresh' => 'false', 'show_scale' => 'false')));
 echo ob_get_clean();
-echo "</div>";
+echo "</div></div>";
 
 echo "</body></html>";
