@@ -10,11 +10,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates
 
-### v4.8.8 (January 2026) - Total Fire Ban District Matching (Fix for Central)
-**Fix:** Refined regex to distinguish between "Central" and "North Central"
-- **Issue:** Central district was still showing TFB because "North Central" contains the word "Central".
-- **Solution:** Implemented negative lookbehind in regex to ensure "Central" is not flagged if preceded by "North" or "South".
-- **Applies to:** Central Fire District specifically, improves accuracy for all.
+### v4.8.9 (January 2026) - Timezone and Status Display Fix
+**Fix:** Accurate "Last Updated" time display
+- **Issue:** The "Last updated" time was showing incorrectly due to hardcoded UTC-to-Melbourne conversion on pre-formatted strings.
+- **Solution:** Switched to using `current_time('timestamp')` and `date_i18n()` to let WordPress handle timezone offsets naturally.
+- **Improved:** Now displays the correct local time as configured in WordPress settings.
+- **Applies to:** Single and multi-district views.
 
 ### v4.8.1 (November 2025) - GitHub Issue #3 Color Fix
 **Fix:** Differentiate Low-Moderate and Moderate colors

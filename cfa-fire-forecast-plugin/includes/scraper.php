@@ -35,7 +35,7 @@ class CFA_Fire_Forecast_Scraper {
         }
         
         $all_data = array();
-        $last_updated = current_time('mysql');
+        $last_updated = current_time('timestamp');
         $next_update = $this->get_next_update_time();
         $source_urls = array();
         
@@ -250,7 +250,7 @@ class CFA_Fire_Forecast_Scraper {
                 'district' => ucwords(str_replace('-', ' ', $district))
             ),
             'source_url' => $this->rss_base_url . $this->rss_feed_map[$district],
-            'last_updated' => current_time('mysql')
+            'last_updated' => current_time('timestamp')
         );
     }
     

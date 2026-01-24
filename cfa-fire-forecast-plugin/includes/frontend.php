@@ -280,10 +280,9 @@ class CFA_Fire_Forecast_Frontend {
                     </div>
                     <div class="cfa-status-item">
                         <span>Last updated: <?php 
-                            $datetime = new DateTime($data['last_updated'], new DateTimeZone('UTC'));
-                            $datetime->setTimezone(new DateTimeZone('Australia/Melbourne'));
-                            echo esc_html($datetime->format('j F Y, g:i A')); 
-                        ?> (Melbourne time)</span>
+                            // last_updated is now a Unix timestamp (Melbourne time)
+                            echo esc_html(date_i18n('j F Y, g:i A', $data['last_updated'])); 
+                        ?></span>
                     </div>
                     <?php 
                     $options = get_option('cfa_fire_forecast_options');
@@ -497,10 +496,9 @@ class CFA_Fire_Forecast_Frontend {
                     </div>
                     <div class="cfa-status-item">
                         <span>Last updated: <?php 
-                            $datetime = new DateTime($data['last_updated'], new DateTimeZone('UTC'));
-                            $datetime->setTimezone(new DateTimeZone('Australia/Melbourne'));
-                            echo esc_html($datetime->format('j F Y, g:i A')); 
-                        ?> (Melbourne time)</span>
+                            // last_updated is now a Unix timestamp (Melbourne time)
+                            echo esc_html(date_i18n('j F Y, g:i A', $data['last_updated'])); 
+                        ?></span>
                     </div>
                     <?php 
                     $show_refresh = isset($options['show_refresh_button']) ? $options['show_refresh_button'] : 'yes';
