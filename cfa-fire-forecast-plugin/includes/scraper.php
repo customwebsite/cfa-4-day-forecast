@@ -204,7 +204,7 @@ class CFA_Fire_Forecast_Scraper {
             $rating = $this->extract_rating_from_description($description);
             
             // Extract total fire ban status
-            $tfb = $this->extract_tfb_status($description);
+            $tfb = $this->extract_tfb_status($description, $district);
             
             // Determine day name
             if ($day_count === 0) {
@@ -277,7 +277,7 @@ class CFA_Fire_Forecast_Scraper {
     /**
      * Extract Total Fire Ban status from description
      */
-    private function extract_tfb_status($description) {
+    private function extract_tfb_status($description, $district_slug = '') {
         // Normalize description for parsing
         // CFA RSS descriptions often contain HTML and encoded characters
         $description = html_entity_decode($description, ENT_QUOTES, 'UTF-8');
@@ -311,11 +311,30 @@ class CFA_Fire_Forecast_Scraper {
         // - "Total Fire Ban declared"
         // - "has been declared a day of Total Fire Ban"
         // - "is a day of Total Fire Ban"
+        
+        // If we have a district name, check if it's explicitly mentioned in the ban declaration
+        if ($district_slug && stripos($first_paragraph, 'Total Fire Ban') !== false) {
+            $district_name = ucwords(str_replace('-', ' ', $district_slug));
+            $district_name_short = str_ireplace(' fire district', '', $district_name);
+            
+            // If the paragraph mentions Total Fire Ban, check if OUR district is in the list of districts
+            if (stripos($first_paragraph, $district_name_short) !== false) {
+                return true;
+            }
+            
+            // If "Total Fire Ban" is mentioned but NOT our district, it's likely a generic message for other districts
+            // We should only return true if the phrase implies it applies to ALL districts or explicitly mentions ours
+            if (stripos($first_paragraph, 'all district') !== false) {
+                return true;
+            }
+            
+            return false;
+        }
+
         if (stripos($first_paragraph, 'day of Total Fire Ban') !== false ||
             stripos($first_paragraph, 'Total Fire Ban in force') !== false ||
             stripos($first_paragraph, 'Total Fire Ban declared') !== false ||
-            stripos($first_paragraph, 'Total Fire Ban has been declared') !== false ||
-            stripos($first_paragraph, 'Total Fire Ban') !== false) {
+            stripos($first_paragraph, 'Total Fire Ban has been declared') !== false) {
             return true;
         }
         

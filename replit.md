@@ -10,10 +10,11 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates
 
-### v4.8.6 (January 2026) - Total Fire Ban Detection Fix (Round 2)
-**Fix:** Even more robust TFB parsing
-- **Improved:** Added catch-all for "Total Fire Ban" phrase if no negative indicators are present.
-- **Safety:** Maintained paragraph isolation to prevent legend matching.
+### v4.8.7 (January 2026) - Total Fire Ban District Matching
+**Fix:** Prevent cross-district TFB false positives
+- **Improved:** `extract_tfb_status()` now checks if the current district name is explicitly mentioned in the TFB declaration text.
+- **Context:** CFA RSS feeds often include a summary of ALL districts under TFB in the status paragraph.
+- **Accuracy:** The plugin now only displays TFB for districts specifically named in that status paragraph.
 - **Applies to:** All districts and forecast days
 
 ### v4.8.1 (November 2025) - GitHub Issue #3 Color Fix
