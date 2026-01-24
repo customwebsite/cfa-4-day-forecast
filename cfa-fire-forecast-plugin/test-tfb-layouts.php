@@ -55,7 +55,7 @@ class WP_Error {
 // Define constants
 if (!defined('ABSPATH')) define('ABSPATH', __DIR__ . '/');
 if (!defined('CFA_FIRE_FORECAST_PLUGIN_URL')) define('CFA_FIRE_FORECAST_PLUGIN_URL', '');
-if (!defined('CFA_FIRE_FORECAST_VERSION')) define('CFA_FIRE_FORECAST_VERSION', '4.9.0');
+if (!defined('CFA_FIRE_FORECAST_VERSION')) define('CFA_FIRE_FORECAST_VERSION', '4.9.1');
 if (!defined('CFA_FIRE_FORECAST_PLUGIN_DIR')) define('CFA_FIRE_FORECAST_PLUGIN_DIR', __DIR__ . '/');
 if (!defined('HOUR_IN_SECONDS')) define('HOUR_IN_SECONDS', 3600);
 

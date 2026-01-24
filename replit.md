@@ -10,6 +10,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates
 
+### v4.9.1 (January 2026) - GitHub Issue #6 Fix
+**Fix:** Custom Header Text setting now displays on frontend
+- **Issue:** The "Custom Header Text" option in admin settings was not being applied to the frontend display.
+- **Solution:** Updated frontend.php to read the `header_text` option and display it in the forecast section header.
+- **Behavior:** When set, displays custom text. When blank, hides the header entirely (as per admin description).
+- **Applies to:** Both single-district and multi-district views.
+
 ### v4.9.0 (January 2026) - Major Total Fire Ban & Accuracy Update
 - **Total Fire Ban Detection Fixes**: Significant improvements to TFB parsing from CFA RSS feeds.
 - **Accurate District Matching**: Implemented precise regex matching (including negative lookbehind) to correctly distinguish between "Central" and "North Central" districts in ban declarations.

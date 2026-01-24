@@ -295,9 +295,13 @@ class CFA_Fire_Forecast_Frontend {
                 </div>
 
                 <div class="cfa-forecast-section">
+                    <?php 
+                    $header_text = isset($options['header_text']) ? trim($options['header_text']) : '';
+                    if (!empty($header_text)): ?>
                     <div class="cfa-forecast-header">
-                        4 Day Fire Danger Forecast - <?php echo count($districts); ?> Districts
+                        <?php echo esc_html($header_text); ?>
                     </div>
+                    <?php endif; ?>
                     <div class="cfa-forecast-content">
                         <?php if ($display_format === 'table'): ?>
                         <div class="cfa-multi-district-table">
@@ -510,9 +514,13 @@ class CFA_Fire_Forecast_Frontend {
                 </div>
 
                 <div class="cfa-forecast-section">
+                    <?php 
+                    $header_text = isset($options['header_text']) ? trim($options['header_text']) : '';
+                    if (!empty($header_text)): ?>
                     <div class="cfa-forecast-header">
-                        4 Day Fire Danger Forecast
+                        <?php echo esc_html($header_text); ?>
                     </div>
+                    <?php endif; ?>
                     <div class="cfa-forecast-content">
                         <?php 
                         // Apply custom day ordering (GitHub Issue #2)
