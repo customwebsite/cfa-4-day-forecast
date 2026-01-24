@@ -17,7 +17,7 @@ A WordPress plugin that displays real-time fire danger forecasts for Victoria, A
 
 Download the latest version:
 
-**[Download CFA Fire Forecast Plugin (v4.8.2)](https://github.com/customwebsite/cfa-4-day-forecast/raw/main/cfa-fire-forecast-plugin.zip)**
+**[Download CFA Fire Forecast Plugin (v4.9.0)](https://github.com/customwebsite/cfa-4-day-forecast/raw/main/cfa-fire-forecast-plugin.zip)**
 
 ## Installation
 
@@ -172,7 +172,7 @@ This information is for general reference only. Always check the official CFA we
 
 - **Author**: Shaun Haddrill
 - **Data Source**: Country Fire Authority (CFA) Victoria
-- **Version**: 4.2.0
+- **Version**: 4.9.0
 
 ## Automatic Updates
 
@@ -184,9 +184,16 @@ This plugin supports automatic updates from GitHub! Once installed, WordPress wi
 3. Shows update notification in WordPress dashboard
 4. One-click update from the dashboard
 
-**For developers:** To release a new version, create a GitHub release with a tag matching the version number (e.g., `v4.2.0`).
+**For developers:** To release a new version, create a GitHub release with a tag matching the version number (e.g., `v4.9.0`).
 
 ## Changelog
+
+### Version 4.9.0
+- **Total Fire Ban Detection Fixes**: Significant improvements to TFB parsing from CFA RSS feeds.
+- **Accurate District Matching**: Implemented precise regex matching (including negative lookbehind) to correctly distinguish between "Central" and "North Central" districts in ban declarations.
+- **Timezone & Status Fix**: Resolved issue where "Last Updated" time was showing incorrectly by leveraging native WordPress timezone settings.
+- **Enhanced Parsing**: Added HTML entity decoding and tag stripping for more robust data extraction.
+- **Improved Reliability**: Added fallback mechanisms for RSS items with non-standard formatting.
 
 ### Version 4.2.0
 - Added automatic update support from GitHub

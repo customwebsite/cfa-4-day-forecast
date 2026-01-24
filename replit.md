@@ -10,6 +10,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates
 
+### v4.9.0 (January 2026) - Major Total Fire Ban & Accuracy Update
+- **Total Fire Ban Detection Fixes**: Significant improvements to TFB parsing from CFA RSS feeds.
+- **Accurate District Matching**: Implemented precise regex matching (including negative lookbehind) to correctly distinguish between "Central" and "North Central" districts in ban declarations.
+- **Timezone & Status Fix**: Resolved issue where "Last Updated" time was showing incorrectly by leveraging native WordPress timezone settings.
+- **Enhanced Parsing**: Added HTML entity decoding and tag stripping for more robust data extraction.
+- **Improved Reliability**: Added fallback mechanisms for RSS items with non-standard formatting.
+
 ### v4.8.9 (January 2026) - Timezone and Status Display Fix
 **Fix:** Accurate "Last Updated" time display
 - **Issue:** The "Last updated" time was showing incorrectly due to hardcoded UTC-to-Melbourne conversion on pre-formatted strings.
