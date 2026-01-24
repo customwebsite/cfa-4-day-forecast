@@ -10,12 +10,10 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates
 
-### v4.8.5 (January 2026) - Total Fire Ban Detection Fix
-**Fix:** Enhanced TFB parsing for complex RSS descriptions
-- **Issue:** TFB status for North Central was missed due to HTML entity encoding and specific phrasing in RSS
-- **Solution:** Added `html_entity_decode` and `strip_tags` to normalize description text before parsing
-- **Improved:** Broader phrase matching for "day of Total Fire Ban" to catch more variations
-- **Robustness:** Added fallback for RSS items missing `<p>` tags by splitting on line breaks
+### v4.8.6 (January 2026) - Total Fire Ban Detection Fix (Round 2)
+**Fix:** Even more robust TFB parsing
+- **Improved:** Added catch-all for "Total Fire Ban" phrase if no negative indicators are present.
+- **Safety:** Maintained paragraph isolation to prevent legend matching.
 - **Applies to:** All districts and forecast days
 
 ### v4.8.1 (November 2025) - GitHub Issue #3 Color Fix

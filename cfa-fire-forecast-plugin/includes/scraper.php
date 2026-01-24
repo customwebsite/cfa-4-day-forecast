@@ -314,7 +314,8 @@ class CFA_Fire_Forecast_Scraper {
         if (stripos($first_paragraph, 'day of Total Fire Ban') !== false ||
             stripos($first_paragraph, 'Total Fire Ban in force') !== false ||
             stripos($first_paragraph, 'Total Fire Ban declared') !== false ||
-            stripos($first_paragraph, 'Total Fire Ban has been declared') !== false) {
+            stripos($first_paragraph, 'Total Fire Ban has been declared') !== false ||
+            stripos($first_paragraph, 'Total Fire Ban') !== false) {
             return true;
         }
         
