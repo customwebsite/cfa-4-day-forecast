@@ -278,14 +278,23 @@ class CFA_Fire_Forecast_Scraper {
      * Extract Total Fire Ban status from description
      */
     private function extract_tfb_status($description) {
+        // Normalize description for parsing
+        // CFA RSS descriptions often contain HTML and encoded characters
+        $description = html_entity_decode($description, ENT_QUOTES, 'UTF-8');
+        
         // Extract only the first paragraph to avoid matching legend/footer text
         // The actual TFB status is always in the first paragraph of CFA RSS feeds
         if (preg_match('/<p>(.*?)<\/p>/is', $description, $matches)) {
             $first_paragraph = $matches[1];
         } else {
-            // Fallback: use entire description if no <p> tags found
-            $first_paragraph = $description;
+            // Fallback: use first chunk before any line breaks if no <p> tags found
+            $chunks = preg_split('/(<br\s*\/?>|\n)/i', $description);
+            $first_paragraph = $chunks[0];
         }
+        
+        // Clean up the paragraph for matching
+        $first_paragraph = strip_tags($first_paragraph);
+        $first_paragraph = trim($first_paragraph);
         
         // Check for negative indicators FIRST (no TFB)
         // These phrases explicitly state there is NO ban
@@ -302,15 +311,10 @@ class CFA_Fire_Forecast_Scraper {
         // - "Total Fire Ban declared"
         // - "has been declared a day of Total Fire Ban"
         // - "is a day of Total Fire Ban"
-        //
-        // By checking ONLY the first paragraph, we avoid matching the legend
-        // "Displays when Total Fire Ban in force" which appears in later paragraphs
-        if (stripos($first_paragraph, 'is a day of Total Fire Ban') !== false ||
+        if (stripos($first_paragraph, 'day of Total Fire Ban') !== false ||
             stripos($first_paragraph, 'Total Fire Ban in force') !== false ||
             stripos($first_paragraph, 'Total Fire Ban declared') !== false ||
-            stripos($first_paragraph, 'Total Fire Ban has been declared') !== false ||
-            stripos($first_paragraph, 'has been declared a day of Total Fire Ban') !== false ||
-            stripos($first_paragraph, 'is a Total Fire Ban day') !== false) {
+            stripos($first_paragraph, 'Total Fire Ban has been declared') !== false) {
             return true;
         }
         
