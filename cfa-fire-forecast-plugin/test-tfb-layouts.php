@@ -92,7 +92,7 @@ echo "
 </style>";
 echo "</head><body>";
 
-echo "<h1>REAL Data TFB Test - v4.8.2</h1>";
+echo "<h1>REAL Data TFB Test - v4.8.7</h1>";
 
 if (isset($real_data['data']) && !empty($real_data['data']['forecast'])) {
     echo "<p class=\"data-source\">Source: " . htmlspecialchars($real_data['source_url']) . " (Fetched live from CFA)</p>";

@@ -317,8 +317,18 @@ class CFA_Fire_Forecast_Scraper {
             $district_name = ucwords(str_replace('-', ' ', $district_slug));
             $district_name_short = str_ireplace(' fire district', '', $district_name);
             
-            // If the paragraph mentions Total Fire Ban, check if OUR district is in the list of districts
-            if (stripos($first_paragraph, $district_name_short) !== false) {
+            // CFA descriptions use "Central district(s)" for Central
+            // But they also say "North Central" which contains "Central"
+            // We need to be careful with word boundaries
+            
+            // Check for specific mention with word boundaries to avoid "North Central" matching "Central"
+            $pattern = '/\b' . preg_quote($district_name_short, '/') . '\b(?!\s*Central)/i';
+            if ($district_name_short === 'Central') {
+                // For Central, we MUST ensure it's not preceded by "North" or "South" etc.
+                $pattern = '/(?<!North\s)(?<!South\s)\bCentral\b/i';
+            }
+            
+            if (preg_match($pattern, $first_paragraph)) {
                 return true;
             }
             

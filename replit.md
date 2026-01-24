@@ -10,12 +10,11 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates
 
-### v4.8.7 (January 2026) - Total Fire Ban District Matching
-**Fix:** Prevent cross-district TFB false positives
-- **Improved:** `extract_tfb_status()` now checks if the current district name is explicitly mentioned in the TFB declaration text.
-- **Context:** CFA RSS feeds often include a summary of ALL districts under TFB in the status paragraph.
-- **Accuracy:** The plugin now only displays TFB for districts specifically named in that status paragraph.
-- **Applies to:** All districts and forecast days
+### v4.8.8 (January 2026) - Total Fire Ban District Matching (Fix for Central)
+**Fix:** Refined regex to distinguish between "Central" and "North Central"
+- **Issue:** Central district was still showing TFB because "North Central" contains the word "Central".
+- **Solution:** Implemented negative lookbehind in regex to ensure "Central" is not flagged if preceded by "North" or "South".
+- **Applies to:** Central Fire District specifically, improves accuracy for all.
 
 ### v4.8.1 (November 2025) - GitHub Issue #3 Color Fix
 **Fix:** Differentiate Low-Moderate and Moderate colors
