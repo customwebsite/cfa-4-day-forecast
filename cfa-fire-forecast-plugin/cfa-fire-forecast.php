@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CFA Fire Forecast
  * Plugin URI: https://github.com/customwebsite/cfa-4-day-forecast
- * Description: Display CFA (Country Fire Authority) fire danger ratings and forecasts for Victoria, Australia. Shows 4-day fire danger forecast with automatic updates twice daily.
+ * Description: Display CFA (Country Fire Authority) fire danger ratings and forecasts for Victoria, Australia. Shows 4-day fire danger forecast with automatic updates four times daily.
  * Version: 4.9.1
  * Author: Shaun Haddrill
  * License: GPL v2 or later
@@ -64,13 +64,13 @@ class CFA_Fire_Forecast {
             add_option('cfa_fire_forecast_options', array(
                 'district' => 'north-central-fire-district',
                 'cache_duration' => 3600, // 1 hour
-                'update_frequency' => 'twice_daily' // 6am and 6pm
+                'update_frequency' => 'four_times_daily' // Every 6 hours
             ));
         }
         
         // Schedule cron events
         if (!wp_next_scheduled('cfa_fire_forecast_update')) {
-            wp_schedule_event(time(), 'twice_daily', 'cfa_fire_forecast_update');
+            wp_schedule_event(time(), 'four_times_daily', 'cfa_fire_forecast_update');
         }
         
         // Create database table if needed (for future use)
@@ -130,9 +130,13 @@ class CFA_Fire_Forecast {
 new CFA_Fire_Forecast();
 
 /**
- * Add custom cron schedule for twice daily updates
+ * Add custom cron schedules for fire data updates
  */
 add_filter('cron_schedules', function($schedules) {
+    $schedules['four_times_daily'] = array(
+        'interval' => 6 * HOUR_IN_SECONDS, // Every 6 hours
+        'display'  => __('Four Times Daily', 'cfa-fire-forecast')
+    );
     $schedules['twice_daily'] = array(
         'interval' => 12 * HOUR_IN_SECONDS, // Every 12 hours
         'display'  => __('Twice Daily', 'cfa-fire-forecast')

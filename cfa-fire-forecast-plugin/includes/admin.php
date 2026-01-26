@@ -274,11 +274,14 @@ class CFA_Fire_Forecast_Admin {
      */
     public function update_frequency_render() {
         $options = get_option('cfa_fire_forecast_options');
-        $frequency = isset($options['update_frequency']) ? $options['update_frequency'] : 'twice_daily';
+        $frequency = isset($options['update_frequency']) ? $options['update_frequency'] : 'four_times_daily';
         ?>
         <select name='cfa_fire_forecast_options[update_frequency]'>
+            <option value='four_times_daily' <?php selected($frequency, 'four_times_daily'); ?>>
+                <?php _e('Four Times Daily (every 6 hours)', 'cfa-fire-forecast'); ?>
+            </option>
             <option value='twice_daily' <?php selected($frequency, 'twice_daily'); ?>>
-                <?php _e('Twice Daily (6 AM & 6 PM)', 'cfa-fire-forecast'); ?>
+                <?php _e('Twice Daily (every 12 hours)', 'cfa-fire-forecast'); ?>
             </option>
             <option value='hourly' <?php selected($frequency, 'hourly'); ?>>
                 <?php _e('Every Hour', 'cfa-fire-forecast'); ?>
