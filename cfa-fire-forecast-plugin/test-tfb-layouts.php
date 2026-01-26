@@ -23,7 +23,8 @@ if (!function_exists('plugin_dir_path')) { function plugin_dir_path($file) { ret
 if (!function_exists('plugin_dir_url')) { function plugin_dir_url($file) { return ''; } }
 if (!function_exists('add_shortcode')) { function add_shortcode($tag, $callback) { } }
 if (!function_exists('add_action')) { function add_action($tag, $callback, $priority = 10, $accepted_args = 1) { } }
-if (!function_exists('current_time')) { function current_time($type) { return date('Y-m-d H:i:s'); } }
+if (!function_exists('current_time')) { function current_time($type) { return ($type === 'timestamp') ? time() : date('Y-m-d H:i:s'); } }
+if (!function_exists('date_i18n')) { function date_i18n($format, $timestamp = false) { return date($format, $timestamp ?: time()); } }
 if (!function_exists('shortcode_atts')) { function shortcode_atts($pairs, $atts) { return array_merge($pairs, (array)$atts); } }
 if (!function_exists('admin_url')) { function admin_url($path = '') { return '/wp-admin/' . $path; } }
 if (!function_exists('wp_create_nonce')) { function wp_create_nonce($action = -1) { return 'mock_nonce'; } }
