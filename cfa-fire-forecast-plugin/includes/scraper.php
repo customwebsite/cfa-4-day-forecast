@@ -333,8 +333,11 @@ class CFA_Fire_Forecast_Scraper {
             }
             
             // If "Total Fire Ban" is mentioned but NOT our district, it's likely a generic message for other districts
-            // We should only return true if the phrase implies it applies to ALL districts or explicitly mentions ours
-            if (stripos($first_paragraph, 'all district') !== false) {
+            // We should only return true if the phrase implies it applies to ALL districts/state or explicitly mentions ours
+            if (stripos($first_paragraph, 'all district') !== false ||
+                stripos($first_paragraph, 'whole State') !== false ||
+                stripos($first_paragraph, 'State of Victoria') !== false ||
+                stripos($first_paragraph, 'statewide') !== false) {
                 return true;
             }
             

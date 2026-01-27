@@ -188,6 +188,11 @@ This plugin supports automatic updates from GitHub! Once installed, WordPress wi
 
 ## Changelog
 
+### Version 4.9.2
+- **Fix:** Statewide Total Fire Ban detection now works correctly
+- Added detection for "whole State of Victoria" and "statewide" TFB declarations
+- Changed default update frequency to four times daily (every 6 hours)
+
 ### Version 4.9.1
 - **Fix:** Custom Header Text setting now displays correctly on frontend (GitHub Issue #6)
 - The "Custom Header Text" option in Display Settings is now properly applied to both single and multi-district forecast views

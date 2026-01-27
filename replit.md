@@ -10,6 +10,10 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates
 
+### v4.9.2 (January 2026) - Statewide TFB & Schedule Update
+- **Fix:** Statewide Total Fire Ban detection now works correctly for phrases like "whole State of Victoria"
+- **Change:** Default update frequency changed from twice daily to four times daily (every 6 hours)
+
 ### v4.9.1 (January 2026) - GitHub Issue #6 Fix
 **Fix:** Custom Header Text setting now displays on frontend
 - **Issue:** The "Custom Header Text" option in admin settings was not being applied to the frontend display.
